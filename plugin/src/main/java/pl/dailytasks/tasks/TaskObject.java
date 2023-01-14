@@ -1,10 +1,13 @@
 package pl.dailytasks.tasks;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import pl.dailytasks.DailyTasks;
+import pl.dailytasks.util.DateManager;
 import pl.dailytasks.util.RandomNumber;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class TaskObject {
@@ -26,6 +29,13 @@ public class TaskObject {
         DailyTasks.TaskPool.add(this);
     }
 
+    public void Complete(PlayerTasks pt) {
+        if(!pt.completedTasks.containsKey(DateManager.getFormattedDate("%H/%M/%D"))) {
+            pt.completedTasks.put(DateManager.getFormattedDate("%H/%M/%D"), new ArrayList<>());
+        }
+        pt.completedTasks.get(DateManager.getFormattedDate("%H/%M/%D")).add(this);
+    }
+
     public static void Check(Player p, String checkable) {
         for(TaskObject to : DailyTasks.todayTasks) {
             String[] taskEvent = to.initializedEvent.split(" ");
@@ -33,10 +43,14 @@ public class TaskObject {
             if(!taskEvent[0].equalsIgnoreCase(givenEvent[0])) {
                 continue;
             }
-            if(!taskEvent[1].equalsIgnoreCase(givenEvent[2])) {
+            if(!taskEvent[2].equalsIgnoreCase(givenEvent[1])) {
                 continue;
             }
-
+            PlayerTasks pt = PlayerTasks.Create(p);
+            if(pt.checkIfCompleted(to)) {
+                continue;
+            }
+            to.Complete(pt);
         }
     }
 

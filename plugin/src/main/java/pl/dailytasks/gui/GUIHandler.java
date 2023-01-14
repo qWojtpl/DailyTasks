@@ -59,25 +59,26 @@ public class GUIHandler {
                 continue;
             }
             Material m = Material.WHITE_CONCRETE;
-            String task = DailyTasks.getMessage("tasks") + "%nl%";
-            for(TaskObject to : DailyTasks.todayTasks) {
-                PlayerTasks pt = PlayerTasks.Create(player);
-                int playerProgress = pt.progress.getOrDefault(to, 0);
-                int maxProgress = to.currentRandom;
-                String progress = playerProgress + "/" + maxProgress;
-                task = task + "§2" + to.initializedEvent + " " + progress + "%nl%";
-            }
-            if(day < currentDay) {
-                PlayerTasks pt = DailyTasks.playerTaskList.get(this.getPlayer());
-                if(pt.checkIfCompleted(day)) {
+            String task = "";
+            PlayerTasks pt = PlayerTasks.Create(player);
+            if(day <= currentDay) {
+                if(day == currentDay) {
+                    m = Material.YELLOW_CONCRETE;
+                    task = DailyTasks.getMessage("tasks") + "%nl%";
+                    for(TaskObject to : DailyTasks.todayTasks) {
+                        int playerProgress = pt.progress.getOrDefault(to, 0);
+                        int maxProgress = to.currentRandom;
+                        String progress = playerProgress + "/" + maxProgress;
+                        task = task + "§2" + to.initializedEvent + " " + progress + "%nl%";
+                    }
+                }
+                if (pt.checkIfCompletedDay(day)) {
                     m = Material.GREEN_CONCRETE;
                     task = task + DailyTasks.getMessage("completed");
-                } else {
+                } else if(day != currentDay) {
                     m = Material.RED_CONCRETE;
                     task = task + DailyTasks.getMessage("not-completed");
                 }
-            } else if(day == currentDay) {
-                m = Material.YELLOW_CONCRETE;
             } else {
                 task = DailyTasks.getMessage("locked-task");
             }

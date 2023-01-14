@@ -39,8 +39,14 @@ public class DateManager {
         return getCalendar().get(Calendar.SECOND);
     }
 
-    public static String getFormattedDate(String delimiter) {
-        return getYear() + delimiter + getMonth() + delimiter + getDay() + delimiter + getHour() + delimiter + getMinute() + delimiter + getSecond();
+    public static String getFormattedDate(String format) {
+        format = format.replace("%Y", String.valueOf(getYear()));
+        format = format.replace("%M", String.valueOf(getMonth()));
+        format = format.replace("%D", String.valueOf(getDay()));
+        format = format.replace("%h", String.valueOf(getHour()));
+        format = format.replace("%m", String.valueOf(getMinute()));
+        format = format.replace("%s", String.valueOf(getSecond()));
+        return format;
     }
 
     public static Calendar getCalendar() {
