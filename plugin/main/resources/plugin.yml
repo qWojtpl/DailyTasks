@@ -1,0 +1,14 @@
+name: DailyTasks
+version: '${project.version}'
+main: pl.dailytasks.DailyTasks
+api-version: 1.13
+authors: [ Assasin98980 ]
+description: Add daily tasks to your Minecraft server
+commands:
+  dailytasks:
+    description: Use DailyTasks
+    permission: dt.use
+    permission-message: §cYou don't have permission!
+    aliases:
+      - dt
+      - zadania
