@@ -18,7 +18,7 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.*;
 import pl.dailytasks.gui.GUIHandler;
 import pl.dailytasks.tasks.PlayerTasks;
-import pl.dailytasks.tasks.TaskObject;
+import pl.dailytasks.tasks.TaskManager;
 
 public class Events implements Listener {
 
@@ -32,13 +32,13 @@ public class Events implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         PlayerTasks.Create(event.getPlayer());
-        TaskObject.Check(event.getPlayer(), "join server");
+        TaskManager.Check(event.getPlayer(), "join server");
     }
 
     @EventHandler
     public void onKill(EntityDeathEvent event) {
         if(event.getEntity().getKiller() instanceof Player) {
-            TaskObject.Check(event.getEntity().getKiller(), "kill " + event.getEntity().getType().name()
+            TaskManager.Check(event.getEntity().getKiller(), "kill " + event.getEntity().getType().name()
                     + " named " + event.getEntity().getCustomName());
         }
     }
@@ -46,22 +46,22 @@ public class Events implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         if(event.getClickedBlock() != null) {
-            TaskObject.Check(event.getPlayer(), "interact " + event.getClickedBlock().getType().name());
-            TaskObject.Check(event.getPlayer(), "click " + event.getClickedBlock().getType().name());
+            TaskManager.Check(event.getPlayer(), "interact " + event.getClickedBlock().getType().name());
+            TaskManager.Check(event.getPlayer(), "click " + event.getClickedBlock().getType().name());
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onBreak(BlockBreakEvent event) {
         if(event.isCancelled()) return;
-        TaskObject.Check(event.getPlayer(), "break " + event.getBlock().getType().name());
-        TaskObject.Check(event.getPlayer(), "destroy " + event.getBlock().getType().name());
+        TaskManager.Check(event.getPlayer(), "break " + event.getBlock().getType().name());
+        TaskManager.Check(event.getPlayer(), "destroy " + event.getBlock().getType().name());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlace(BlockPlaceEvent event) {
         if(event.isCancelled()) return;
-        TaskObject.Check(event.getPlayer(), "place " + event.getBlock().getType().name());
+        TaskManager.Check(event.getPlayer(), "place " + event.getBlock().getType().name());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -69,10 +69,10 @@ public class Events implements Listener {
         if(event.isCancelled()) return;
         if(event.getEntity() instanceof Player) {
             for(int i = 0; i < event.getItem().getItemStack().getAmount(); i++) {
-                TaskObject.Check((Player) event.getEntity(), "pickup " + event.getItem().getItemStack().getType()
+                TaskManager.Check((Player) event.getEntity(), "pickup " + event.getItem().getItemStack().getType()
                         + " named " + event.getItem().getItemStack().getItemMeta().getDisplayName());
             }
-            TaskObject.Check((Player) event.getEntity(), "T_pickup " + event.getItem().getItemStack().getType()
+            TaskManager.Check((Player) event.getEntity(), "T_pickup " + event.getItem().getItemStack().getType()
                     + " named " + event.getItem().getItemStack().getItemMeta().getDisplayName());
         }
     }
@@ -81,10 +81,10 @@ public class Events implements Listener {
     public void onDrop(PlayerDropItemEvent event) {
         if(event.isCancelled()) return;
         for(int i = 0; i < event.getItemDrop().getItemStack().getAmount(); i++) {
-            TaskObject.Check(event.getPlayer(), "drop " + event.getItemDrop().getItemStack().getType()
+            TaskManager.Check(event.getPlayer(), "drop " + event.getItemDrop().getItemStack().getType()
                     + " named " + event.getItemDrop().getItemStack().getItemMeta().getDisplayName());
         }
-        TaskObject.Check(event.getPlayer(), "T_drop " + event.getItemDrop().getItemStack().getType()
+        TaskManager.Check(event.getPlayer(), "T_drop " + event.getItemDrop().getItemStack().getType()
                 + " named " + event.getItemDrop().getItemStack().getItemMeta().getDisplayName());
     }
 
@@ -92,14 +92,14 @@ public class Events implements Listener {
     public void onCraft(CraftItemEvent event) {
         if(event.isCancelled()) return;
         for(int i = 0; i < event.getCurrentItem().getAmount(); i++) {
-            TaskObject.Check((Player) event.getWhoClicked(), "craft " + event.getCurrentItem().getType());
+            TaskManager.Check((Player) event.getWhoClicked(), "craft " + event.getCurrentItem().getType());
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEnchant(EnchantItemEvent event) {
         if(event.isCancelled()) return;
-        TaskObject.Check(event.getEnchanter(), "enchant " + event.getItem().getType()
+        TaskManager.Check(event.getEnchanter(), "enchant " + event.getItem().getType()
                 + " named " + event.getItem().getItemMeta().getDisplayName());
     }
 
@@ -107,10 +107,10 @@ public class Events implements Listener {
     public void onFish(PlayerFishEvent event) {
         if(event.isCancelled()) return;
         if(event.getCaught() != null && event.getCaught() instanceof Item && event.getState().toString().equals("CAUGHT_FISH")) {
-            TaskObject.Check(event.getPlayer(), "fish " + ((Item) event.getCaught()).getItemStack().getType());
+            TaskManager.Check(event.getPlayer(), "fish " + ((Item) event.getCaught()).getItemStack().getType());
         }
         if(event.getCaught() != null && !event.getState().toString().equals("CAUGHT_FISH")) {
-            TaskObject.Check(event.getPlayer(), "catch " + event.getCaught().getType());
+            TaskManager.Check(event.getPlayer(), "catch " + event.getCaught().getType());
         }
     }
 
@@ -118,20 +118,20 @@ public class Events implements Listener {
     public void onShootBow(EntityShootBowEvent event) {
         if(event.isCancelled()) return;
         if(event.getEntity() instanceof Player) {
-            TaskObject.Check((Player) event.getEntity(), "shoot bow named " + event.getBow().getItemMeta().getDisplayName());
+            TaskManager.Check((Player) event.getEntity(), "shoot bow named " + event.getBow().getItemMeta().getDisplayName());
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onCommand(PlayerCommandPreprocessEvent event) {
         if(event.isCancelled()) return;
-        TaskObject.Check(event.getPlayer(), "command " + event.getMessage());
+        TaskManager.Check(event.getPlayer(), "command " + event.getMessage());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onChat(AsyncPlayerChatEvent event) {
         if(event.isCancelled()) return;
-        TaskObject.Check(event.getPlayer(), "chat " + event.getMessage());
+        TaskManager.Check(event.getPlayer(), "chat " + event.getMessage());
     }
 
     @EventHandler
