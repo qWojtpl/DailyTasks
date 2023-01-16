@@ -11,12 +11,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import pl.dailytasks.DailyTasks;
 import pl.dailytasks.tasks.PlayerTasks;
+import pl.dailytasks.tasks.TaskManager;
 import pl.dailytasks.tasks.TaskObject;
 import pl.dailytasks.util.DateManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 public class GUIHandler {
@@ -66,9 +66,9 @@ public class GUIHandler {
                 if(day == currentDay) {
                     m = Material.YELLOW_CONCRETE;
                     task = DailyTasks.getMessage("tasks") + "%nl%";
-                    for(TaskObject to : DailyTasks.todayTasks) {
+                    for(TaskObject to : TaskManager.getTasks(day)) {
                         pt.InitializeProgress();
-                        int playerProgress = pt.progress.get(DateManager.getFormattedDate("%Y/%M/%D")).getOrDefault(to, 0);
+                        int playerProgress = pt.getProgress().getOrDefault(to, 0);
                         int maxProgress = to.currentRandom;
                         String progress = playerProgress + "/" + maxProgress;
                         task = task + "§2" + to.initializedEvent + " " + progress + "%nl%";

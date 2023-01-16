@@ -2,10 +2,10 @@ package pl.dailytasks.tasks;
 
 import org.bukkit.entity.Player;
 import pl.dailytasks.DailyTasks;
+import pl.dailytasks.data.DataManager;
 import pl.dailytasks.util.DateManager;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,6 +18,7 @@ public class PlayerTasks {
     public PlayerTasks(Player p) {
         this.player = p;
         DailyTasks.playerTaskList.put(p, this);
+        DataManager.createPlayer(p);
     }
 
     public static PlayerTasks Create(Player p) {
@@ -55,5 +56,19 @@ public class PlayerTasks {
         if(!this.progress.containsKey(DateManager.getFormattedDate("%Y/%M/%D"))) {
             this.progress.put(DateManager.getFormattedDate("%Y/%M/%D"), new HashMap<>());
         }
+    }
+
+    public HashMap<TaskObject, Integer> getProgress() {
+        if(!progress.containsKey(DateManager.getFormattedDate("%Y/%M/%D"))) {
+            progress.put(DateManager.getFormattedDate("%Y/%M/%D"), new HashMap<>());
+        }
+        return progress.get(DateManager.getFormattedDate("%Y/%M/%D"));
+    }
+
+    public List<TaskObject> getCompletedTasks(int day) {
+        if(!completedTasks.containsKey(DateManager.getFormattedDate("%Y/%M/" + day))) {
+            completedTasks.put(DateManager.getFormattedDate("%Y/%M/" + day), new ArrayList<>());
+        }
+        return completedTasks.get(DateManager.getFormattedDate("%Y/%M/" + day));
     }
 }
