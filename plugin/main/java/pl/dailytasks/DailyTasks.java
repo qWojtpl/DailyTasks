@@ -10,6 +10,7 @@ import pl.dailytasks.events.Events;
 import pl.dailytasks.gui.GUIHandler;
 import pl.dailytasks.tasks.PlayerTasks;
 import pl.dailytasks.tasks.TaskObject;
+import pl.dailytasks.util.DateManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +25,7 @@ public final class DailyTasks extends JavaPlugin {
     public static HashMap<Player, PlayerTasks> playerTaskList = new HashMap<>();
     public static List<TaskObject> TaskPool = new ArrayList<>();
     public static List<TaskObject> todayTasks = new ArrayList<>();
+    public static String lastRandomizedDate = "";
 
     @Override
     public void onEnable() {
@@ -36,7 +38,13 @@ public final class DailyTasks extends JavaPlugin {
         for(Player p : Bukkit.getOnlinePlayers()) {
             PlayerTasks.Create(p);
         }
-        TaskObject.RandomizeTasks(3);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, (Runnable) () -> {
+            String now = DateManager.getFormattedDate("%Y/%M/%D");
+            if(!lastRandomizedDate.equals(now)) {
+                TaskObject.RandomizeTasks(3);
+                lastRandomizedDate = now;
+            }
+        }, 0L, 20L);
     }
 
     @Override

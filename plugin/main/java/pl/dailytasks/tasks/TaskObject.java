@@ -24,9 +24,13 @@ public class TaskObject {
         this.event = event;
         this.min = min;
         this.max = max;
-        this.currentRandom = RandomNumber.randomInt(min, max);
-        this.initializedEvent = this.event.replace("%rdm%", String.valueOf(this.currentRandom));
+        this.Reinitialize();
         DailyTasks.TaskPool.add(this);
+    }
+
+    public void Reinitialize() {
+        this.currentRandom = RandomNumber.randomInt(this.min, this.max);
+        this.initializedEvent = this.event.replace("%rdm%", String.valueOf(this.currentRandom));
     }
 
     public void Complete(PlayerTasks pt) {
@@ -51,10 +55,12 @@ public class TaskObject {
                 continue;
             }
             int progress = pt.progress.getOrDefault(to, 0);
-            if(++progress >= to.currentRandom) {
+            if(progress >= to.currentRandom) {
                 to.Complete(pt);
+            } else {
+                progress++;
+                pt.progress.put(to, progress);
             }
-            pt.progress.put(to, progress);
         }
     }
 
@@ -67,6 +73,7 @@ public class TaskObject {
             TaskObject to = DailyTasks.TaskPool.get(rdm);
             if(!DailyTasks.todayTasks.contains(to)) {
                 i++;
+                to.Reinitialize();
                 DailyTasks.todayTasks.add(to);
             }
             if(li > 255) {
