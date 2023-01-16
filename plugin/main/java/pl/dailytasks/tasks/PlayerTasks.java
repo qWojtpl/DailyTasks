@@ -13,7 +13,7 @@ public class PlayerTasks {
 
     public Player player;
     public HashMap<String, List<TaskObject>> completedTasks = new HashMap<>();
-    public HashMap<String, HashMap<TaskObject, Integer>> progress = new HashMap<>();
+    public HashMap<String, List<Integer>> progress = new HashMap<>();
 
     public PlayerTasks(Player p) {
         this.player = p;
@@ -52,17 +52,27 @@ public class PlayerTasks {
         return false;
     }
 
-    public void InitializeProgress() {
-        if(!this.progress.containsKey(DateManager.getFormattedDate("%Y/%M/%D"))) {
-            this.progress.put(DateManager.getFormattedDate("%Y/%M/%D"), new HashMap<>());
-        }
-    }
-
-    public HashMap<TaskObject, Integer> getProgress() {
+    public List<Integer> getProgress() {
         if(!progress.containsKey(DateManager.getFormattedDate("%Y/%M/%D"))) {
-            progress.put(DateManager.getFormattedDate("%Y/%M/%D"), new HashMap<>());
+            ArrayList<Integer> a = new ArrayList<>();
+            a.ensureCapacity(3);
+            for(int i = 0; i < 3; i++) {
+                a.add(0);
+            }
+            progress.put(DateManager.getFormattedDate("%Y/%M/%D"), a);
         }
         return progress.get(DateManager.getFormattedDate("%Y/%M/%D"));
+    }
+
+    public List<Integer> getProgressByDay(int day) {
+        if(!progress.containsKey(DateManager.getFormattedDate("%Y/%M/" + day))) {
+            ArrayList<Integer> a = new ArrayList<>();
+            for(int i = 0; i < 3; i++) {
+                a.add(0);
+            }
+            progress.put(DateManager.getFormattedDate("%Y/%M/" + day), a);
+        }
+        return progress.get(DateManager.getFormattedDate("%Y/%M/" + day));
     }
 
     public List<TaskObject> getCompletedTasks(int day) {

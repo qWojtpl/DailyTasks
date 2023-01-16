@@ -30,8 +30,6 @@ public final class DailyTasks extends JavaPlugin {
         main = this;
         getServer().getPluginManager().registerEvents(new Events(), this);
         getCommand("dailytasks").setExecutor(new Commands());
-        DataManager.loadMessages();
-        DataManager.loadTasks();
         DataManager.load();
         getLogger().info("Loaded.");
         for(Player p : Bukkit.getOnlinePlayers()) {
@@ -50,6 +48,7 @@ public final class DailyTasks extends JavaPlugin {
     @Override
     public void onDisable() {
         GUIHandler.closeAllInventories();
+        DataManager.saveCalendar();
         getLogger().info("Bye!");
     }
 
