@@ -34,10 +34,10 @@ public class TaskObject {
     }
 
     public void Complete(PlayerTasks pt) {
-        if(!pt.completedTasks.containsKey(DateManager.getFormattedDate("%H/%M/%D"))) {
-            pt.completedTasks.put(DateManager.getFormattedDate("%H/%M/%D"), new ArrayList<>());
+        if(!pt.completedTasks.containsKey(DateManager.getFormattedDate("%Y/%M/%D"))) {
+            pt.completedTasks.put(DateManager.getFormattedDate("%Y/%M/%D"), new ArrayList<>());
         }
-        pt.completedTasks.get(DateManager.getFormattedDate("%H/%M/%D")).add(this);
+        pt.completedTasks.get(DateManager.getFormattedDate("%Y/%M/%D")).add(this);
     }
 
     public static void Check(Player p, String checkable) {
@@ -54,13 +54,13 @@ public class TaskObject {
             if(pt.checkIfCompleted(to)) {
                 continue;
             }
-            int progress = pt.progress.getOrDefault(to, 0);
+            pt.InitializeProgress();
+            int progress = pt.progress.get(DateManager.getFormattedDate("%Y/%M/%D")).getOrDefault(to, 0);
+            progress++;
             if(progress >= to.currentRandom) {
                 to.Complete(pt);
-            } else {
-                progress++;
-                pt.progress.put(to, progress);
             }
+            pt.progress.get(DateManager.getFormattedDate("%Y/%M/%D")).put(to, progress);
         }
     }
 

@@ -16,6 +16,7 @@ import pl.dailytasks.util.DateManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class GUIHandler {
@@ -66,7 +67,8 @@ public class GUIHandler {
                     m = Material.YELLOW_CONCRETE;
                     task = DailyTasks.getMessage("tasks") + "%nl%";
                     for(TaskObject to : DailyTasks.todayTasks) {
-                        int playerProgress = pt.progress.getOrDefault(to, 0);
+                        pt.InitializeProgress();
+                        int playerProgress = pt.progress.get(DateManager.getFormattedDate("%Y/%M/%D")).getOrDefault(to, 0);
                         int maxProgress = to.currentRandom;
                         String progress = playerProgress + "/" + maxProgress;
                         task = task + "§2" + to.initializedEvent + " " + progress + "%nl%";
