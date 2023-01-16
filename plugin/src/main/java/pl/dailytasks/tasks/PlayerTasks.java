@@ -2,7 +2,7 @@ package pl.dailytasks.tasks;
 
 import org.bukkit.entity.Player;
 import pl.dailytasks.DailyTasks;
-import pl.dailytasks.data.DataManager;
+import pl.dailytasks.data.DataHandler;
 import pl.dailytasks.util.DateManager;
 
 import java.util.ArrayList;
@@ -12,13 +12,13 @@ import java.util.List;
 public class PlayerTasks {
 
     public Player player;
-    public HashMap<String, List<TaskObject>> completedTasks = new HashMap<>();
+    public HashMap<String, List<Integer>> completedTasks = new HashMap<>();
     public HashMap<String, List<Integer>> progress = new HashMap<>();
 
     public PlayerTasks(Player p) {
         this.player = p;
         DailyTasks.playerTaskList.put(p, this);
-        DataManager.createPlayer(p);
+        DataHandler.loadPlayer(p);
     }
 
     public static PlayerTasks Create(Player p) {
@@ -42,11 +42,10 @@ public class PlayerTasks {
         return false;
     }
 
-    public boolean checkIfCompleted(TaskObject to) {
+    public boolean checkIfCompleted(int index) {
         if(completedTasks.containsKey(DateManager.getFormattedDate("%Y/%M/%D"))) {
-            List<TaskObject> ct = completedTasks.get(DateManager.getFormattedDate("%Y/%M/%D"));
-            for(TaskObject to2 : ct) {
-                if(to2 == to) return true;
+            if(getProgress().get(index) >= TaskManager.getTodayTasks().get(index).currentRandom) {
+                return true;
             }
         }
         return false;
@@ -54,8 +53,7 @@ public class PlayerTasks {
 
     public List<Integer> getProgress() {
         if(!progress.containsKey(DateManager.getFormattedDate("%Y/%M/%D"))) {
-            ArrayList<Integer> a = new ArrayList<>();
-            a.ensureCapacity(3);
+            List<Integer> a = new ArrayList<>();
             for(int i = 0; i < 3; i++) {
                 a.add(0);
             }
@@ -66,7 +64,7 @@ public class PlayerTasks {
 
     public List<Integer> getProgressByDay(int day) {
         if(!progress.containsKey(DateManager.getFormattedDate("%Y/%M/" + day))) {
-            ArrayList<Integer> a = new ArrayList<>();
+            List<Integer> a = new ArrayList<>();
             for(int i = 0; i < 3; i++) {
                 a.add(0);
             }
@@ -75,7 +73,7 @@ public class PlayerTasks {
         return progress.get(DateManager.getFormattedDate("%Y/%M/" + day));
     }
 
-    public List<TaskObject> getCompletedTasks(int day) {
+    public List<Integer> getCompletedTasks(int day) {
         if(!completedTasks.containsKey(DateManager.getFormattedDate("%Y/%M/" + day))) {
             completedTasks.put(DateManager.getFormattedDate("%Y/%M/" + day), new ArrayList<>());
         }

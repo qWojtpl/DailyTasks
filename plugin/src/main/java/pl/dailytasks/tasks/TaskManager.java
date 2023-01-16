@@ -3,7 +3,7 @@ package pl.dailytasks.tasks;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import pl.dailytasks.DailyTasks;
-import pl.dailytasks.data.DataManager;
+import pl.dailytasks.data.DataHandler;
 import pl.dailytasks.util.DateManager;
 import pl.dailytasks.util.RandomNumber;
 
@@ -30,7 +30,7 @@ public class TaskManager {
             if(!taskEvent[2].equalsIgnoreCase(givenEvent[1])) {
                 continue;
             }
-            if(pt.checkIfCompleted(to)) {
+            if(pt.checkIfCompleted(i)) {
                 continue;
             }
             int progress = pt.getProgress().get(i);
@@ -39,7 +39,7 @@ public class TaskManager {
                 to.Complete(pt, i);
             }
             pt.getProgress().set(i, progress);
-            DailyTasks.main.getLogger().info(i + " ");
+            DataHandler.updatePlayerProgress(pt, i);
             int playerSum = 0;
             int max = 0;
             int j = 0;
@@ -67,7 +67,7 @@ public class TaskManager {
             getTodayTasks().add(new TaskObject(to.ID, to.event, to.min, to.max));
             pool.remove(index);
         }
-        DataManager.saveTodayTasks();
+        DataHandler.saveTodayTasks();
     }
 
     public static List<TaskObject> getTodayTasks() {

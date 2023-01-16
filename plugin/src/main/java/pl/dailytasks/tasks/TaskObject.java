@@ -1,12 +1,9 @@
 package pl.dailytasks.tasks;
 
-import org.bukkit.Sound;
-import pl.dailytasks.DailyTasks;
-import pl.dailytasks.data.DataManager;
+import pl.dailytasks.data.DataHandler;
 import pl.dailytasks.util.DateManager;
 import pl.dailytasks.util.RandomNumber;
 
-import java.text.MessageFormat;
 
 public class TaskObject {
 
@@ -31,8 +28,8 @@ public class TaskObject {
     }
 
     public void Complete(PlayerTasks pt, int index) {
-        pt.getCompletedTasks(Integer.parseInt(DateManager.getFormattedDate("%D"))).add(this);
-        DataManager.addPlayerCompletedTask(pt, index);
+        pt.getCompletedTasks(Integer.parseInt(DateManager.getFormattedDate("%D"))).add(index);
+        DataHandler.addPlayerCompletedTask(pt, index);
     }
 
 }

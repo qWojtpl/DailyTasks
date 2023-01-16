@@ -5,7 +5,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import pl.dailytasks.commands.Commands;
-import pl.dailytasks.data.DataManager;
+import pl.dailytasks.data.DataHandler;
 import pl.dailytasks.events.Events;
 import pl.dailytasks.gui.GUIHandler;
 import pl.dailytasks.tasks.PlayerTasks;
@@ -19,44 +19,54 @@ import java.util.List;
 
 public final class DailyTasks extends JavaPlugin {
 
-    public static DailyTasks main;
-    public static YamlConfiguration messages;
-    public static HashMap<Player, PlayerTasks> playerTaskList = new HashMap<>();
-    public static List<TaskObject> TaskPool = new ArrayList<>();
-    public static String lastRandomizedDate = "";
+    public static DailyTasks main; // Main instance
+    public static YamlConfiguration messages; // Messages
+    public static HashMap<Player, PlayerTasks> playerTaskList = new HashMap<>(); // PlayerTasks list
+    public static List<TaskObject> TaskPool = new ArrayList<>(); // Task pool to randomize tasks
+    public static String lastRandomizedDate = ""; // Last randomized date
+    public static int dateCheckTask;
+    public static boolean dataCheckInitialized = false;
 
     @Override
     public void onEnable() {
-        main = this;
-        getServer().getPluginManager().registerEvents(new Events(), this);
-        getCommand("dailytasks").setExecutor(new Commands());
-        DataManager.load();
+        main = this; // Set main instance as this
+        getServer().getPluginManager().registerEvents(new Events(), this); // Register events
+        getCommand("dailytasks").setExecutor(new Commands()); // Register commands
+        DataHandler.load(); // Load data (configs, tasks etc)
         getLogger().info("Loaded.");
         for(Player p : Bukkit.getOnlinePlayers()) {
-            PlayerTasks.Create(p);
+            PlayerTasks.Create(p); // Create PlayerTasks for all players on the server
         }
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, (Runnable) () -> {
-            String now = DateManager.getFormattedDate("%Y/%M/%D");
-            if(!lastRandomizedDate.equals(now)) {
-                TaskManager.RandomizeTasks(3);
-                lastRandomizedDate = now;
-                DataManager.saveLastRandomized(now);
-            }
-        }, 0L, 20L);
     }
 
     @Override
     public void onDisable() {
-        GUIHandler.closeAllInventories();
-        DataManager.saveCalendar();
+        GUIHandler.closeAllInventories(); // Close all GUI inventories
+        DataHandler.saveCalendar(); // Save calendar (if using fake calendar)
         getLogger().info("Bye!");
+    }
+
+    public static void runDateCheck() {
+        if(dataCheckInitialized) {
+            Bukkit.getScheduler().cancelTask(dateCheckTask);
+        }
+        dataCheckInitialized = true;
+        dateCheckTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(DailyTasks.main, (Runnable) () -> { // Check date every second to randomize tasks
+            String now = DateManager.getFormattedDate("%Y/%M/%D"); // Set now as date
+            if(!lastRandomizedDate.equals(now)) { // If date is not last randomized date
+                DailyTasks.main.getLogger().info("Randomizing tasks! Last randomized: " + lastRandomizedDate + ", current date: " + now);
+                TaskManager.RandomizeTasks(3); // Randomize 3 new tasks
+                lastRandomizedDate = now; // Set randomized date to now
+                DataHandler.saveLastRandomized(now); // Save randomized tasks
+            }
+        }, 0L, 20L);
     }
 
     public static String getMessage(String path) {
         if(messages.getString("messages." + path) != null) {
             return messages.getString("messages." + path);
         }
-        return "§cNULL§f";
+        return "§cNULL§f ";
     }
 
 }
