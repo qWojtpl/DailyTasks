@@ -64,14 +64,16 @@ public class GUIHandler {
             String task = "";
             PlayerTasks pt = PlayerTasks.Create(player);
             if(day <= currentDay) {
-                task = DailyTasks.getMessage("tasks") + "%nl%";
-                int j = 0;
-                for(TaskObject to : TaskManager.getTasks(day)) {
-                    int playerProgress = pt.getProgressByDay(day).get(j);
-                    int maxProgress = to.currentRandom;
-                    String progress = playerProgress + "/" + maxProgress;
-                    task = task + "§2" + to.initializedEvent + " " + progress + "%nl%";
-                    j++;
+                if(TaskManager.getTasks(day).size() != 0) {
+                    task = DailyTasks.getMessage("tasks") + "%nl%";
+                    int j = 0;
+                    for (TaskObject to : TaskManager.getTasks(day)) {
+                        int playerProgress = pt.getProgressByDay(day).get(j);
+                        int maxProgress = to.currentRandom;
+                        String progress = playerProgress + "/" + maxProgress;
+                        task = task + "§2" + to.initializedEvent + " " + progress + "%nl%";
+                        j++;
+                    }
                 }
                 if(day == currentDay) {
                     m = Material.YELLOW_CONCRETE;

@@ -19,7 +19,7 @@ public class TaskManager {
     public static void Check(Player p, String checkable) {
         int i = -1;
         PlayerTasks pt = PlayerTasks.Create(p);
-        if(pt.completedTasks.size() >= 3) return;
+        if(pt.checkIfCompletedDay(DateManager.getDay())) return;
         for(TaskObject to : getTodayTasks()) {
             i++;
             String[] taskEvent = to.initializedEvent.split(" ");
@@ -53,6 +53,13 @@ public class TaskManager {
                 String[] splittedMessage = DailyTasks.getMessage("complete-day").split("%nl%");
                 for(String message : splittedMessage) {
                     pt.getPlayer().sendMessage(MessageFormat.format(message, DateManager.getDay()));
+                }
+                if(pt.checkIfCompletedMonth()) {
+                    pt.getPlayer().playSound(pt.getPlayer().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.0F, 1.0F);
+                    splittedMessage = DailyTasks.getMessage("complete-month").split("%nl%");
+                    for(String message : splittedMessage) {
+                        pt.getPlayer().sendMessage(MessageFormat.format(message, DateManager.getMonth(), "YourCustomReward"));
+                    }
                 }
             }
         }

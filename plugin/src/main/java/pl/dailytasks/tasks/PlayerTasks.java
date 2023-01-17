@@ -51,6 +51,19 @@ public class PlayerTasks {
         return false;
     }
 
+    public boolean checkIfCompletedMonth() {
+        int c = 0;
+        for(int i = 1; i <= DateManager.getDaysOfMonth(); i++) {
+            if(checkIfCompletedDay(i)) {
+                c++;
+            }
+        }
+        if(c >= DateManager.getDaysOfMonth()) {
+            return true;
+        }
+        return false;
+    }
+
     public List<Integer> getProgress() {
         if(!progress.containsKey(DateManager.getFormattedDate("%Y/%M/%D"))) {
             List<Integer> a = new ArrayList<>();

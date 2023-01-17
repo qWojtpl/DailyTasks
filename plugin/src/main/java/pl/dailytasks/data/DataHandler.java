@@ -3,7 +3,6 @@ package pl.dailytasks.data;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.yaml.snakeyaml.Yaml;
 import pl.dailytasks.DailyTasks;
 import pl.dailytasks.tasks.PlayerTasks;
 import pl.dailytasks.tasks.TaskManager;
@@ -45,29 +44,55 @@ public class DataHandler {
     }
 
     public static void loadPlayer(Player p) {
+        PlayerTasks pt = PlayerTasks.Create(p);
+        loadPlayerAutoComplete(pt);
         File playerFile = createPlayerFile(p);
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(playerFile);
-        PlayerTasks pt = PlayerTasks.Create(p);
         ConfigurationSection section = yml.getConfigurationSection("saved");
         if(section == null) return;
         for(String date : section.getKeys(false)) {
             List<Integer> completed = new ArrayList<>();
             List<Integer> progress = new ArrayList<>();
             for(int i = 0; i < 3; i++) {
-                if(yml.getBoolean("saved." + date + "." + i + ".completed")) {
+                if(yml.getInt("saved." + date + "." + i + ".c") == 1) {
                     completed.add(i);
                 }
-                progress.add(yml.getInt("saved." + date + "." + i + ".progress"));
+                progress.add(yml.getInt("saved." + date + "." + i + ".p"));
             }
             pt.completedTasks.put(date, completed);
             pt.progress.put(date, progress);
         }
     }
 
+    public static void loadPlayerAutoComplete(PlayerTasks pt) {
+        File autoCompleteFile = createTaskHistory();
+        YamlConfiguration yml2 = YamlConfiguration.loadConfiguration(autoCompleteFile);
+        ConfigurationSection section2 = yml2.getConfigurationSection("auto-complete");
+        if(section2 == null) return;
+        for(String key : section2.getKeys(false)) {
+            if(!yml2.getBoolean("auto-complete." + key)) continue;
+            for(int i = 0; i < 3; i++) {
+                addPlayerCompletedTaskByDate(pt, i, key);
+            }
+        }
+    }
+
     public static void addPlayerCompletedTask(PlayerTasks pt, int index) {
         File playerFile = createPlayerFile(pt.getPlayer());
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(playerFile);
-        yml.set("saved." + DateManager.getFormattedDate("%Y/%M/%D") + "." + index + ".completed", true);
+        yml.set("saved." + DateManager.getFormattedDate("%Y/%M/%D") + "." + index + ".c", 1);
+        try {
+            yml.save(playerFile);
+        } catch(IOException e) {
+            DailyTasks.main.getLogger().info("Cannot save " + pt.getPlayer().getName() + ".yml");
+            DailyTasks.main.getLogger().info("IO Exception: " + e);
+        }
+    }
+
+    public static void addPlayerCompletedTaskByDate(PlayerTasks pt, int index, String date) {
+        File playerFile = createPlayerFile(pt.getPlayer());
+        YamlConfiguration yml = YamlConfiguration.loadConfiguration(playerFile);
+        yml.set("saved." + date + "." + index + ".c", 1);
         try {
             yml.save(playerFile);
         } catch(IOException e) {
@@ -79,7 +104,7 @@ public class DataHandler {
     public static void updatePlayerProgress(PlayerTasks pt, int index) {
         File playerFile = createPlayerFile(pt.getPlayer());
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(playerFile);
-        yml.set("saved." + DateManager.getFormattedDate("%Y/%M/%D") + "." + index + ".progress", pt.getProgress().get(index));
+        yml.set("saved." + DateManager.getFormattedDate("%Y/%M/%D") + "." + index + ".p", pt.getProgress().get(index));
         try {
             yml.save(playerFile);
         } catch(IOException e) {
@@ -204,7 +229,8 @@ public class DataHandler {
                 yml.set("messages.locked-task", "§cTask locked! Come back in a few days!");
                 yml.set("messages.not-completed", "%nl%§cYou didn't completed this task!");
                 yml.set("messages.completed", "%nl%§aYou completed this task!");
-                yml.set("messages.complete-day", "§c----------------%nl% %nl%§e§lYou completed day §a{0}%nl% %nl%§c----------------");
+                yml.set("messages.complete-day", "§c----------------------------%nl% %nl%§e§lYou completed day §a{0}%nl% %nl%§c----------------------------");
+                yml.set("messages.complete-month", "§c§k----------------------------%nl% %nl%§e§lYou completed month §a{0}%nl%§e§lReward: §a{1} %nl% %nl%§c§k----------------------------");
                 yml.save(messageFile);
             } catch(IOException e) {
                 DailyTasks.main.getLogger().info("IO exception: " + e);
