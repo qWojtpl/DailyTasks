@@ -3,6 +3,8 @@ package pl.dailytasks.data;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.checkerframework.checker.units.qual.A;
+import org.yaml.snakeyaml.Yaml;
 import pl.dailytasks.DailyTasks;
 import pl.dailytasks.tasks.PlayerTasks;
 import pl.dailytasks.tasks.TaskManager;
@@ -213,6 +215,34 @@ public class DataHandler {
             DailyTasks.main.getLogger().info("Cannot save pluginData.yml");
             DailyTasks.main.getLogger().info("IO Exception: " + e);
         }
+    }
+
+    public static void markDateAutoComplete(String date, boolean markAs) {
+        File pluginDataFile = createPluginData();
+        YamlConfiguration yml = YamlConfiguration.loadConfiguration(pluginDataFile);
+        if(markAs) {
+            yml.set("auto-complete." + date, markAs);
+        } else {
+            yml.set("auto-complete." + date, null);
+        }
+        try {
+            yml.save(pluginDataFile);
+        } catch(IOException e) {
+            DailyTasks.main.getLogger().info("Cannot save pluginData.yml");
+            DailyTasks.main.getLogger().info("IO Exception: " + e);
+        }
+    }
+
+    public static List<String> getAutoCompleteDates() {
+        File pluginDataFile = createPluginData();
+        YamlConfiguration yml = YamlConfiguration.loadConfiguration(pluginDataFile);
+        ConfigurationSection section = yml.getConfigurationSection("auto-complete");
+        if(section == null) return new ArrayList<>();
+        List<String> dates = new ArrayList<>();
+        for(String date : section.getKeys(false)) {
+            if(yml.getBoolean("auto-complete." + date)) dates.add(date);
+        }
+        return dates;
     }
 
     public static void loadMessages() {
