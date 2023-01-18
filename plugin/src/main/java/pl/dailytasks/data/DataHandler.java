@@ -224,6 +224,7 @@ public class DataHandler {
                 yml.set("messages.title", "Daily tasks");
                 yml.set("messages.day", "§6§lDay §c§l");
                 yml.set("messages.tasks", "§cTasks:");
+                yml.set("messages.day-without-task", "§cThis day doesn't have any tasks! :D");
                 yml.set("messages.info-title", "§6§lInformation");
                 yml.set("messages.info-description", "§aComplete daily tasks to get rewards.%nl%§aComplete all monthly tasks to get special reward!");
                 yml.set("messages.locked-task", "§cTask locked! Come back in a few days!");

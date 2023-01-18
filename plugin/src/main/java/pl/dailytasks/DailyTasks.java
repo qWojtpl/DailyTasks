@@ -48,6 +48,22 @@ public final class DailyTasks extends JavaPlugin {
         getLogger().info("Bye!");
     }
 
+    public void Reload() {
+        GUIHandler.closeAllInventories(); // Close all GUI inventories
+        DataHandler.saveCalendar(); // Save calendar (if using fake calendar)
+        getLogger().info("Reloading..");
+        messages = null;
+        playerTaskList = new HashMap<>();
+        TaskPool = new ArrayList<>();
+        lastRandomizedDate = "";
+        dataCheckInitialized = false;
+        DataHandler.load(); // Load data (configs, tasks etc)
+        getLogger().info("Reloaded.");
+        for(Player p : Bukkit.getOnlinePlayers()) {
+            PlayerTasks.Create(p); // Create PlayerTasks for all players on the server
+        }
+    }
+
     public static void runDateCheck() {
         if(dataCheckInitialized) {
             Bukkit.getScheduler().cancelTask(dateCheckTask); // If ever date check initialized, cancel previous task
