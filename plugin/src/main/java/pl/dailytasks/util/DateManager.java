@@ -69,9 +69,8 @@ public class DateManager {
         fakeCalendar.set(HOUR_OF_DAY, hour);
         fakeCalendar.set(MINUTE, minute);
         fakeCalendar.set(SECOND, second);
-        fakeCalendarTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(DailyTasks.main, (Runnable) () -> {
-            fakeCalendar.set(SECOND, fakeCalendar.get(SECOND) + 1);
-        }, 0L, 20L);
+        fakeCalendarTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(DailyTasks.main, () ->
+                fakeCalendar.set(SECOND, fakeCalendar.get(SECOND) + 1), 0L, 20L);
         DataHandler.saveCalendar();
     }
 

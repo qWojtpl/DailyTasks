@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import pl.dailytasks.commands.CommandHelper;
 import pl.dailytasks.commands.Commands;
 import pl.dailytasks.data.DataHandler;
 import pl.dailytasks.events.Events;
@@ -31,7 +32,8 @@ public final class DailyTasks extends JavaPlugin {
     public void onEnable() {
         main = this; // Set main instance as this
         getServer().getPluginManager().registerEvents(new Events(), this); // Register events
-        getCommand("dailytasks").setExecutor(new Commands()); // Register commands
+        getCommand("dailytasks").setExecutor(new Commands()); // Register command
+        getCommand("dailytasks").setTabCompleter(new CommandHelper()); // Register tab completer
         DataHandler.load(); // Load data (configs, tasks etc)
         getLogger().info("Loaded.");
         for(Player p : Bukkit.getOnlinePlayers()) {
@@ -48,7 +50,7 @@ public final class DailyTasks extends JavaPlugin {
 
     public static void runDateCheck() {
         if(dataCheckInitialized) {
-            Bukkit.getScheduler().cancelTask(dateCheckTask);
+            Bukkit.getScheduler().cancelTask(dateCheckTask); // If ever date check initialized, cancel previous task
         }
         dataCheckInitialized = true;
         dateCheckTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(DailyTasks.main, (Runnable) () -> { // Check date every second to randomize tasks

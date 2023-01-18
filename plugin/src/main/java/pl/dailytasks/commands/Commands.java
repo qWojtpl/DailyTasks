@@ -34,13 +34,13 @@ public class Commands implements CommandExecutor {
 
     public static void ShowHelp(CommandSender sender, int page) {
         if(!checkPlayerPermission(sender, "dt.manage")) return;
-        sender.sendMessage("§f<============ §bDailyTasks §f============>");
+        sender.sendMessage("§c<============ §eDailyTasks §c============>");
         switch(page) {
             case 1:
                 sender.sendMessage("§b/dt §f- Shows daily tasks");
                 break;
         }
-        sender.sendMessage("§f<============ §bDailyTasks §f============>");
+        sender.sendMessage("§c<============ §eDailyTasks §c============>");
     }
 
     private static void c_FakeCalendar(CommandSender sender, String[] args) {
