@@ -6,15 +6,20 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pl.dailytasks.DailyTasks;
 import pl.dailytasks.data.DataHandler;
+import pl.dailytasks.tasks.PlayerTasks;
 import pl.dailytasks.util.DateManager;
 import pl.dailytasks.gui.GUIHandler;
+import pl.dailytasks.util.PlayerUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Commands implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
-            if (!checkPlayerPermission(sender, "td.manage") || args.length == 0) {
+            if (!PlayerUtil.checkPlayerPermission(sender, "td.manage") || args.length == 0) {
                 GUIHandler.New((Player) sender);
                 return true;
             }
@@ -35,6 +40,8 @@ public class Commands implements CommandExecutor {
             c_AutoComplete(sender, args);
         } else if(args[0].equalsIgnoreCase("checkauto")) {
             c_CheckAuto(sender, args);
+        } else if(args[0].equalsIgnoreCase("complete")) {
+            c_Complete(sender, args);
         } else {
             ShowHelp(sender, 1);
         }
@@ -57,13 +64,13 @@ public class Commands implements CommandExecutor {
     }
 
     private static void c_Reload(CommandSender sender) {
-        if(!checkPlayerPermission(sender, "dt.reload")) return;
+        if(!PlayerUtil.checkPlayerPermission(sender, "dt.reload")) return;
         DailyTasks.main.Reload();
         sender.sendMessage(DailyTasks.getMessage("prefix") + " §aReloaded configuration!");
     }
 
     private static void c_FakeCalendar(CommandSender sender, String[] args) {
-        if(!checkPlayerPermission(sender, "dt.fakecalendar")) return;
+        if(!PlayerUtil.checkPlayerPermission(sender, "dt.fakecalendar")) return;
         if(args.length < 7) {
             sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt fakecalendar <year> <month> <day> <hour> <minute> <second>");
             return;
@@ -77,7 +84,7 @@ public class Commands implements CommandExecutor {
     }
 
     private static void c_RemoveFakeCalendar(CommandSender sender) {
-        if(!checkPlayerPermission(sender, "dt.removefakecalendar")) return;
+        if(!PlayerUtil.checkPlayerPermission(sender, "dt.removefakecalendar")) return;
         if(DateManager.isUsingFakeCalendar()) {
             DateManager.removeFakeCalendar();
             sender.sendMessage(DailyTasks.getMessage("prefix") + " §aNow using real calendar!");
@@ -87,7 +94,7 @@ public class Commands implements CommandExecutor {
     }
 
     private static void c_AutoComplete(CommandSender sender, String[] args) {
-        if(!checkPlayerPermission(sender, "dt.setautocomplete")) return;
+        if(!PlayerUtil.checkPlayerPermission(sender, "dt.setautocomplete")) return;
         if(args.length < 4) {
             sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt autocomplete <Y> <M> <D>");
             return;
@@ -103,7 +110,7 @@ public class Commands implements CommandExecutor {
     }
 
     private static void c_CheckAuto(CommandSender sender, String[] args) {
-        if(!checkPlayerPermission(sender, "dt.checkauto")) return;
+        if(!PlayerUtil.checkPlayerPermission(sender, "dt.checkauto")) return;
         if(args.length < 4) {
             sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt checkauto <Y> <M> <D>");
             return;
@@ -116,10 +123,39 @@ public class Commands implements CommandExecutor {
         }
     }
 
+    public static void c_Complete(CommandSender sender, String[] args) {
+        if(args.length < 2) {
+            ShowHelp(sender, 2);
+            return;
+        }
+        if(args[1].equalsIgnoreCase("day")) {
+            if(!PlayerUtil.checkPlayerPermission(sender, "dt.complete.day")) return;
+            if(args.length < 3) {
+                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt complete day <nick>");
+                return;
+            }
+            Player p = PlayerUtil.getPlayerByNick(args[2]);
+            if(p == null) {
+                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCannot find this player!");
+                return;
+            }
+            PlayerTasks pt = PlayerTasks.Create(p);
+            List<Integer> threeTasks = new ArrayList<>();
+            for(int i = 0; i < 3; i++) {
+                threeTasks.add(0);
+                DataHandler.addPlayerCompletedTask(pt, i);
+            }
+            pt.completedTasks.put(DateManager.getFormattedDate("%Y/%M/%D"), threeTasks);
+            sender.sendMessage(DailyTasks.getMessage("prefix") + " §aAdded this day as completed day for " + p.getName() + "!");
+        } else if(args[1].equalsIgnoreCase("date")) {
+
+        }
+    }
+
     public static void ShowHelp(CommandSender sender, int page) {
-        if(!checkPlayerPermission(sender, "dt.manage")) return;
+        if (!PlayerUtil.checkPlayerPermission(sender, "dt.manage")) return;
         sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
-        switch(page) {
+        switch (page) {
             case 1:
                 sender.sendMessage("§c/dt §e- Shows daily tasks");
                 sender.sendMessage("§c/dt reload §e- Reload configuration");
@@ -151,15 +187,6 @@ public class Commands implements CommandExecutor {
                 sender.sendMessage("§cNot found page: " + page);
         }
         sender.sendMessage("§6<============ §r§cShowing page " + page + "/4 §6============>");
-    }
-
-    public static boolean checkPlayerPermission(CommandSender sender, String permission) {
-        if(!(sender instanceof Player)) return true;
-        if(!sender.hasPermission(permission)) {
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §cYou don't have permission!");
-            return false;
-        }
-        return true;
     }
 
 }
