@@ -12,6 +12,7 @@ import pl.dailytasks.data.DataHandler;
 import pl.dailytasks.events.Events;
 import pl.dailytasks.gui.GUIHandler;
 import pl.dailytasks.tasks.PlayerTasks;
+import pl.dailytasks.tasks.RewardObject;
 import pl.dailytasks.tasks.TaskManager;
 import pl.dailytasks.tasks.TaskObject;
 import pl.dailytasks.util.DateManager;
@@ -26,6 +27,7 @@ public final class DailyTasks extends JavaPlugin {
     public static YamlConfiguration messages; // Messages
     public static HashMap<Player, PlayerTasks> playerTaskList = new HashMap<>(); // PlayerTasks list
     public static List<TaskObject> TaskPool = new ArrayList<>(); // Task pool to randomize tasks
+    public static List<RewardObject> RewardPool = new ArrayList<>();
     public static String lastRandomizedDate = ""; // Last randomized date
     public static int dateCheckTask;
     public static boolean dataCheckInitialized = false;
@@ -58,6 +60,7 @@ public final class DailyTasks extends JavaPlugin {
         messages = null;
         playerTaskList = new HashMap<>();
         TaskPool = new ArrayList<>();
+        RewardPool = new ArrayList<>();
         lastRandomizedDate = "";
         dataCheckInitialized = false;
         DataHandler.load(); // Load data (configs, tasks etc)
@@ -77,6 +80,7 @@ public final class DailyTasks extends JavaPlugin {
             if(!lastRandomizedDate.equals(now)) { // If date is not last randomized date
                 DailyTasks.main.getLogger().info("Randomizing tasks! Last randomized: " + lastRandomizedDate + ", current date: " + now);
                 TaskManager.RandomizeTasks(3); // Randomize 3 new tasks
+                if(DateManager.getFormattedDate("%D").equals("1")) TaskManager.RandomizeMonthReward();
                 lastRandomizedDate = now; // Set randomized date to now
                 DataHandler.saveLastRandomized(now); // Save randomized tasks
             }

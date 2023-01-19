@@ -5,6 +5,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import pl.dailytasks.DailyTasks;
 import pl.dailytasks.tasks.PlayerTasks;
+import pl.dailytasks.tasks.RewardObject;
 import pl.dailytasks.tasks.TaskManager;
 import pl.dailytasks.tasks.TaskObject;
 import pl.dailytasks.util.DateManager;
@@ -23,7 +24,8 @@ public class DataHandler {
         loadCalendar(); // Load calendar (if using fake set calendar as this fake one)
         loadMessages(); // Load messages
         loadTasks(); // Load task pool
-        loadPluginData(); // Load task days
+        loadRewards(); // Load rewards
+        loadPluginData(); // Load plugin data (task history, rewards history, options, calendar etc)
     }
 
     public static File createPlayerFile(Player p) {
@@ -184,20 +186,29 @@ public class DataHandler {
     public static void loadPluginData() {
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(createPluginData());
         ConfigurationSection section = yml.getConfigurationSection("history");
-        if(section == null)  {
-            DailyTasks.runDateCheck();
-            return;
-        }
-        for(String key : section.getKeys(false)) {
-            List<String> tasks = yml.getStringList("history." + key);
-            List<TaskObject> initializedTasks = new ArrayList<>();
-            for(String event : tasks) {
-                String[] taskInfo = event.split(" ");
-                TaskObject to = new TaskObject("SAVED_" + RandomNumber.randomInt(0, 1000),
-                        event, Integer.parseInt(taskInfo[1]), Integer.parseInt(taskInfo[1]));
-                initializedTasks.add(to);
+        if(section != null) {
+            for(String key : section.getKeys(false)) {
+                List<String> tasks = yml.getStringList("history." + key);
+                List<TaskObject> initializedTasks = new ArrayList<>();
+                for(String event : tasks) {
+                    String[] taskInfo = event.split(" ");
+                    TaskObject to = new TaskObject(event, Integer.parseInt(taskInfo[1]), Integer.parseInt(taskInfo[1]));
+                    initializedTasks.add(to);
+                }
+                TaskManager.taskList.put(key, initializedTasks);
             }
-            TaskManager.todayTasks.put(key, initializedTasks);
+        }
+        String[] rewardTypes = new String[]{"day", "month"};
+        for(String rewardType : rewardTypes) {
+            section = yml.getConfigurationSection(rewardType + "-reward-history");
+            if (section != null) {
+                for (String key : section.getKeys(false)) {
+                    RewardObject reward = new RewardObject(yml.getString(rewardType + "-reward-history." + key),
+                            0, 0, (rewardType == "month"));
+                    TaskManager.dayRewardList.put(key, reward);
+                    reward.initializedCommand = reward.command;
+                }
+            }
         }
         DailyTasks.lastRandomizedDate = yml.getString("data.lastRandomized");
         DataHandler.deleteOldData = yml.getBoolean("options.deleteOldData");
@@ -212,6 +223,30 @@ public class DataHandler {
             tasks.add(to.initializedEvent);
         }
         yml.set("history." + DateManager.getFormattedDate("%Y/%M/%D"), tasks);
+        try {
+            yml.save(pluginDataFile);
+        } catch(IOException e) {
+            DailyTasks.main.getLogger().info("Cannot save pluginData.yml");
+            DailyTasks.main.getLogger().info("IO Exception: " + e);
+        }
+    }
+
+    public static void saveTodayReward() {
+        File pluginDataFile = createPluginData();
+        YamlConfiguration yml = YamlConfiguration.loadConfiguration(pluginDataFile);
+        yml.set("day-reward-history." + DateManager.getFormattedDate("%Y/%M/%D"), TaskManager.getTodayReward().initializedCommand);
+        try {
+            yml.save(pluginDataFile);
+        } catch(IOException e) {
+            DailyTasks.main.getLogger().info("Cannot save pluginData.yml");
+            DailyTasks.main.getLogger().info("IO Exception: " + e);
+        }
+    }
+
+    public static void saveMonthlyReward() {
+        File pluginDataFile = createPluginData();
+        YamlConfiguration yml = YamlConfiguration.loadConfiguration(pluginDataFile);
+        yml.set("month-reward-history." + DateManager.getFormattedDate("%Y/%M"), TaskManager.getThisMonthReward().initializedCommand);
         try {
             yml.save(pluginDataFile);
         } catch(IOException e) {
@@ -275,7 +310,7 @@ public class DataHandler {
                 yml.set("messages.locked-task", "§cTask locked! Come back in a few days!");
                 yml.set("messages.not-completed", "%nl%§cYou didn't completed this task!");
                 yml.set("messages.completed", "%nl%§aYou completed this task!");
-                yml.set("messages.complete-day", "§c----------------------------%nl% %nl%§e§lYou completed day §a{0}%nl% %nl%§c----------------------------");
+                yml.set("messages.complete-day", "§c----------------------------%nl% %nl%§e§lYou completed day §a{0}%nl%§e§lReward: §a{1}%nl% %nl%§c----------------------------");
                 yml.set("messages.complete-month", "§c§k----------------------------%nl% %nl%§e§lYou completed month §a{0}%nl%§e§lReward: §a{1} %nl% %nl%§c§k----------------------------");
                 yml.save(messageFile);
             } catch(IOException e) {
@@ -285,7 +320,7 @@ public class DataHandler {
         DailyTasks.messages = YamlConfiguration.loadConfiguration(messageFile);
     }
 
-    public static void loadTasks() {
+    public static File createTasksFile() {
         File tasksFile = new File(DailyTasks.main.getDataFolder(), "task-pool.yml");
         if(!tasksFile.exists()) {
             try {
@@ -296,19 +331,64 @@ public class DataHandler {
                 yml.set("tasks.0.numberMax", 10);
                 yml.save(tasksFile);
             } catch(IOException e) {
+                DailyTasks.main.getLogger().info("Cannot create task-pool.yml");
                 DailyTasks.main.getLogger().info("IO exception: " + e);
             }
         }
+        return tasksFile;
+    }
+
+    public static void loadTasks() {
+        File tasksFile = createTasksFile();
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(tasksFile);
         ConfigurationSection section = yml.getConfigurationSection("tasks");
         for(String key : section.getKeys(false)) {
             if(!yml.getBoolean("tasks." + key + ".enabled")) {
                 continue;
             }
-            DailyTasks.TaskPool.add(new TaskObject(key, yml.getString("tasks." + key + ".event"),
+            DailyTasks.TaskPool.add(new TaskObject(yml.getString("tasks." + key + ".event"),
                     yml.getInt("tasks." + key + ".numberMin"), yml.getInt("tasks." + key + ".numberMax")));
             DailyTasks.main.getLogger().info("Loaded task: " + key);
         }
     }
 
+    public static File createRewardFile() {
+        File rewardFile = new File(DailyTasks.main.getDataFolder(), "reward-pool.yml");
+        if(!rewardFile.exists()) {
+            try {
+                rewardFile.createNewFile();
+                YamlConfiguration yml = new YamlConfiguration();
+                yml.set("day-rewards.0.enabled", true);
+                yml.set("day-rewards.0.command", "give %player% minecraft:emerald %rdm%");
+                yml.set("day-rewards.0.numberMin", 10);
+                yml.set("day-rewards.0.numberMax", 15);
+                yml.set("month-rewards.0.enabled", true);
+                yml.set("month-rewards.0.command", "give %player% minecraft:diamond_block %rdm%");
+                yml.set("month-rewards.0.numberMin", 10);
+                yml.set("month-rewards.0.numberMax", 32);
+                yml.save(rewardFile);
+            } catch(IOException e) {
+                DailyTasks.main.getLogger().info("Cannot create task-pool.yml");
+                DailyTasks.main.getLogger().info("IO exception: " + e);
+            }
+        }
+        return rewardFile;
+    }
+
+    public static void loadRewards() {
+        File rewardFile = createRewardFile();
+        YamlConfiguration yml = YamlConfiguration.loadConfiguration(rewardFile);
+        String[] rewardTypes = new String[]{"day", "month"};
+        for(String rewardType : rewardTypes) {
+            ConfigurationSection section = yml.getConfigurationSection(rewardType + "-rewards");
+            if(section == null) continue;
+            for(String key : section.getKeys(false)) {
+                DailyTasks.RewardPool.add( new RewardObject(yml.getString(rewardType + "-rewards." + key + ".command"),
+                        yml.getInt(rewardType + "-rewards." + key + ".numberMin"),
+                        yml.getInt(rewardType + "-rewards." + key + ".command"),
+                        (rewardType.equals("month")) )
+                );
+            }
+        }
+    }
 }

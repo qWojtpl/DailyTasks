@@ -20,7 +20,14 @@ public class CommandHelper implements TabCompleter {
         }
         List<String> completions = new ArrayList<>();
         if(args.length > 1) {
-            if(args[0].equalsIgnoreCase("fakecalendar")) {
+            if(args[0].equalsIgnoreCase("help")) {
+                if(args.length == 2) {
+                    completions.add("1");
+                    completions.add("2");
+                    completions.add("3");
+                    completions.add("4");
+                }
+            } else if(args[0].equalsIgnoreCase("fakecalendar")) {
                 if(args.length == 2) {
                     completions.add(String.valueOf(DateManager.getYear()));
                 } else if(args.length == 3) {

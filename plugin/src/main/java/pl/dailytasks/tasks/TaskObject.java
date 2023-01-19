@@ -7,15 +7,13 @@ import pl.dailytasks.util.RandomNumber;
 
 public class TaskObject {
 
-    public String ID;
     public String event;
     public String initializedEvent;
     public int min;
     public int max;
     public int currentRandom;
 
-    public TaskObject(String id, String event, int min, int max) {
-        this.ID = id;
+    public TaskObject(String event, int min, int max) {
         this.event = event;
         this.min = min;
         this.max = max;
