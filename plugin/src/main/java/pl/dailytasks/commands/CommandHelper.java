@@ -70,6 +70,7 @@ public class CommandHelper implements TabCompleter {
                 }
             }
         } else {
+            completions.add("help");
             completions.add("reload");
             completions.add("fakecalendar");
             completions.add("removefake");

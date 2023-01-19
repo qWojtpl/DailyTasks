@@ -3,8 +3,6 @@ package pl.dailytasks.data;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.units.qual.A;
-import org.yaml.snakeyaml.Yaml;
 import pl.dailytasks.DailyTasks;
 import pl.dailytasks.tasks.PlayerTasks;
 import pl.dailytasks.tasks.TaskManager;
@@ -18,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataHandler {
+
+    public static boolean deleteOldData = false;
 
     public static void load() {
         loadCalendar(); // Load calendar (if using fake set calendar as this fake one)
@@ -53,6 +53,13 @@ public class DataHandler {
         ConfigurationSection section = yml.getConfigurationSection("saved"); // Get YAML section
         if(section == null) return;
         for(String date : section.getKeys(false)) { // Loop through section keys (dates, eg. '2023/1/18')
+            String[] dateArray = date.split("/");
+            if(!DateManager.isUsingFakeCalendar() && deleteOldData) {
+                if(Integer.parseInt(dateArray[0]) <= DateManager.getYear() && Integer.parseInt(dateArray[1]) < DateManager.getMonth()) {
+                    yml.set("saved." + date, null);
+                    continue;
+                }
+            }
             List<Integer> completed = new ArrayList<>(); // Player's completed tasks
             List<Integer> progress = new ArrayList<>(); // Player's progress
             for(int i = 0; i < 3; i++) { // Loop through daily tasks
@@ -63,6 +70,12 @@ public class DataHandler {
             }
             pt.completedTasks.put(date, completed); // Put completed tasks as date key
             pt.progress.put(date, progress); // Put tasks progress as date key
+        }
+        try {
+            yml.save(playerFile);
+        } catch(IOException e) {
+            DailyTasks.main.getLogger().info("Cannot save " + pt.getPlayer().getName() + ".yml");
+            DailyTasks.main.getLogger().info("IO Exception: " + e);
         }
     }
 
@@ -158,6 +171,7 @@ public class DataHandler {
                 pluginDataFile.createNewFile();
                 YamlConfiguration yml = YamlConfiguration.loadConfiguration(pluginDataFile);
                 yml.set("data.lastRandomized", "1970/01/01");
+                yml.set("options.deleteOldData", true);
                 yml.save(pluginDataFile);
             } catch(IOException e) {
                 DailyTasks.main.getLogger().info("Cannot create pluginData.yml");
@@ -186,6 +200,7 @@ public class DataHandler {
             TaskManager.todayTasks.put(key, initializedTasks);
         }
         DailyTasks.lastRandomizedDate = yml.getString("data.lastRandomized");
+        DataHandler.deleteOldData = yml.getBoolean("options.deleteOldData");
         DailyTasks.runDateCheck();
     }
 
