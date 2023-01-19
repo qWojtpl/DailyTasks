@@ -35,7 +35,7 @@ public class PlayerTasks {
 
     public boolean checkIfCompletedDay(int day) {
         if(completedTasks.containsKey(DateManager.getFormattedDate("%Y/%M/" + day))) {
-            if(completedTasks.get(DateManager.getFormattedDate("%Y/%M/" + day)).size() == 3) {
+            if(completedTasks.get(DateManager.getFormattedDate("%Y/%M/" + day)).size() >= 3) {
                 return true;
             }
         }

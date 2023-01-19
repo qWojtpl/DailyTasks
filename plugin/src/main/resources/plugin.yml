@@ -7,8 +7,6 @@ description: Add daily tasks to your Minecraft server
 commands:
   dailytasks:
     description: Use DailyTasks
-    permission: dt.use
-    permission-message: §cYou don't have permission!
     aliases:
       - dt
       - zadania

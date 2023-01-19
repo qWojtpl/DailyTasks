@@ -3,9 +3,11 @@ package pl.dailytasks;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.java.JavaPlugin;
 import pl.dailytasks.commands.CommandHelper;
 import pl.dailytasks.commands.Commands;
+import pl.dailytasks.commands.PermissionManager;
 import pl.dailytasks.data.DataHandler;
 import pl.dailytasks.events.Events;
 import pl.dailytasks.gui.GUIHandler;
@@ -31,6 +33,7 @@ public final class DailyTasks extends JavaPlugin {
     @Override
     public void onEnable() {
         main = this; // Set main instance as this
+        PermissionManager.loadPermissions(); // Register permissions
         getServer().getPluginManager().registerEvents(new Events(), this); // Register events
         getCommand("dailytasks").setExecutor(new Commands()); // Register command
         getCommand("dailytasks").setTabCompleter(new CommandHelper()); // Register tab completer

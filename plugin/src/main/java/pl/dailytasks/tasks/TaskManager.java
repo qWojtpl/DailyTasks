@@ -3,6 +3,7 @@ package pl.dailytasks.tasks;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import pl.dailytasks.DailyTasks;
+import pl.dailytasks.commands.PermissionManager;
 import pl.dailytasks.data.DataHandler;
 import pl.dailytasks.util.DateManager;
 import pl.dailytasks.util.RandomNumber;
@@ -17,6 +18,7 @@ public class TaskManager {
     public static HashMap<String, List<TaskObject>> todayTasks = new HashMap<>();
 
     public static void Check(Player p, String checkable) {
+        if(!p.hasPermission(PermissionManager.getPermission("dt.use"))) return;
         int i = -1;
         PlayerTasks pt = PlayerTasks.Create(p);
         if(pt.checkIfCompletedDay(DateManager.getDay())) return;
@@ -40,26 +42,30 @@ public class TaskManager {
             }
             pt.getProgress().set(i, progress);
             DataHandler.updatePlayerProgress(pt, i);
-            int playerSum = 0;
-            int max = 0;
-            int j = 0;
-            for(TaskObject to2 : getTodayTasks()) {
-                max += to2.currentRandom;
-                playerSum += pt.getProgress().get(j);
-                j++;
+            CompleteDay(pt);
+        }
+    }
+
+    public static void CompleteDay(PlayerTasks pt) {
+        int playerSum = 0;
+        int max = 0;
+        int j = 0;
+        for(TaskObject to2 : getTodayTasks()) {
+            max += to2.currentRandom;
+            playerSum += pt.getProgress().get(j);
+            j++;
+        }
+        if(playerSum >= max) {
+            pt.getPlayer().playSound(pt.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, 1.0F, 1.0F);
+            String[] splittedMessage = DailyTasks.getMessage("complete-day").split("%nl%");
+            for (String message : splittedMessage) {
+                pt.getPlayer().sendMessage(MessageFormat.format(message, DateManager.getDay()));
             }
-            if(playerSum >= max) {
-                pt.getPlayer().playSound(pt.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, 1.0F, 1.0F);
-                String[] splittedMessage = DailyTasks.getMessage("complete-day").split("%nl%");
-                for(String message : splittedMessage) {
-                    pt.getPlayer().sendMessage(MessageFormat.format(message, DateManager.getDay()));
-                }
-                if(pt.checkIfCompletedMonth()) {
-                    pt.getPlayer().playSound(pt.getPlayer().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.0F, 1.0F);
-                    splittedMessage = DailyTasks.getMessage("complete-month").split("%nl%");
-                    for(String message : splittedMessage) {
-                        pt.getPlayer().sendMessage(MessageFormat.format(message, DateManager.getMonth(), "YourCustomReward"));
-                    }
+            if (pt.checkIfCompletedMonth()) {
+                pt.getPlayer().playSound(pt.getPlayer().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.0F, 1.0F);
+                splittedMessage = DailyTasks.getMessage("complete-month").split("%nl%");
+                for (String message : splittedMessage) {
+                    pt.getPlayer().sendMessage(MessageFormat.format(message, DateManager.getMonth(), "YourCustomReward"));
                 }
             }
         }
