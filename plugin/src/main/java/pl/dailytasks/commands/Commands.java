@@ -150,7 +150,7 @@ public class Commands implements CommandExecutor {
                 to.Complete(pt, i); // Complete task
                 i++;
             }
-            TaskManager.CompleteDay(pt); // Check rewards
+            TaskManager.CheckRewards(pt); // Check rewards
             sender.sendMessage(DailyTasks.getMessage("prefix") + " §aAdded this day as completed day for " + p.getName() + "!");
         } else if(args[1].equalsIgnoreCase("date")) {
             if(!PermissionManager.checkSenderPermission(sender, PermissionManager.getPermission("dt.complete.date"))) return;
@@ -195,7 +195,7 @@ public class Commands implements CommandExecutor {
             pt.getProgress().set(index, task.currentRandom); // Set progress to max
             DataHandler.updatePlayerProgress(pt, index); // Save progress
             task.Complete(pt, index); // Complete task and save it
-            TaskManager.CompleteDay(pt); // Check rewards
+            TaskManager.CheckRewards(pt); // Check rewards
             sender.sendMessage(DailyTasks.getMessage("prefix") + " §aMarked progress " + index + " of this day as completed for " + p.getName() + "!");
         }
     }

@@ -44,11 +44,11 @@ public class TaskManager {
             }
             pt.getProgress().set(i, progress);
             DataHandler.updatePlayerProgress(pt, i);
-            CompleteDay(pt);
+            CheckRewards(pt);
         }
     }
 
-    public static void CompleteDay(PlayerTasks pt) {
+    public static void CheckRewards(PlayerTasks pt) {
         int playerSum = 0;
         int max = 0;
         int j = 0;
@@ -79,13 +79,15 @@ public class TaskManager {
 
     public static void RandomizeTasks(int numberOfTasks) {
         List<TaskObject> pool = new ArrayList<>(DailyTasks.TaskPool);
+        if(pool.size() == 0 || getTodayTasks().size() >= numberOfTasks) return;
         for(int i = 0; i < numberOfTasks; i++) {
-            if(pool.size() == 0 || getTodayTasks().size() >= numberOfTasks) break;
             int index = RandomNumber.randomInt(0, pool.size()-1);
             TaskObject to = pool.get(index);
             getTodayTasks().add(new TaskObject(to.event, to.min, to.max));
             pool.remove(index);
         }
+        DailyTasks.main.getLogger().info("Randomizing tasks! Last randomized: " +
+                DailyTasks.lastRandomizedDate + ", current date: " + DateManager.getFormattedDate("%Y/%M/%D"));
         RandomizeDayReward();
         DataHandler.saveTodayTasks();
     }
@@ -96,6 +98,8 @@ public class TaskManager {
         for(RewardObject ro : allPool) {
             if(!ro.isMonthly) pool.add(ro);
         }
+        if(pool.size() == 0 || getTodayReward() != null) return;
+        DailyTasks.main.getLogger().info("Randomizing daily reward!");
         RewardObject schema = pool.get(RandomNumber.randomInt(0, pool.size()-1));
         dayRewardList.put(DateManager.getFormattedDate("%Y/%M/%D"), new RewardObject(schema.command, schema.min, schema.max, schema.isMonthly));
         DataHandler.saveTodayReward();
@@ -107,8 +111,10 @@ public class TaskManager {
         for(RewardObject ro : allPool) {
             if(ro.isMonthly) pool.add(ro);
         }
+        if(pool.size() == 0 || getThisMonthReward() != null) return;
+        DailyTasks.main.getLogger().info("Randomizing monthly reward!");
         RewardObject schema = pool.get(RandomNumber.randomInt(0, pool.size()-1));
-        dayRewardList.put(DateManager.getFormattedDate("%Y/%M"), new RewardObject(schema.command, schema.min, schema.max, schema.isMonthly));
+        monthRewardList.put(DateManager.getFormattedDate("%Y/%M"), new RewardObject(schema.command, schema.min, schema.max, schema.isMonthly));
         DataHandler.saveMonthlyReward();
     }
 

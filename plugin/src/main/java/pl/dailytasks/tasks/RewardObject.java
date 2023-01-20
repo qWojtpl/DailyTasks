@@ -1,5 +1,6 @@
 package pl.dailytasks.tasks;
 
+import pl.dailytasks.DailyTasks;
 import pl.dailytasks.util.RandomNumber;
 
 public class RewardObject {

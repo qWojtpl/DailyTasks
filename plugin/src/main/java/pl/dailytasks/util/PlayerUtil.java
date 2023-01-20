@@ -1,10 +1,7 @@
 package pl.dailytasks.util;
 
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.Permission;
-import pl.dailytasks.DailyTasks;
 
 public class PlayerUtil {
 

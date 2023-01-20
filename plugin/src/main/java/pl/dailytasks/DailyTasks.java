@@ -63,6 +63,9 @@ public final class DailyTasks extends JavaPlugin {
         RewardPool = new ArrayList<>();
         lastRandomizedDate = "";
         dataCheckInitialized = false;
+        TaskManager.dayRewardList = new HashMap<>();
+        TaskManager.monthRewardList = new HashMap<>();
+        TaskManager.taskList = new HashMap<>();
         DataHandler.load(); // Load data (configs, tasks etc)
         getLogger().info("Reloaded.");
         for(Player p : Bukkit.getOnlinePlayers()) {
@@ -78,9 +81,11 @@ public final class DailyTasks extends JavaPlugin {
         dateCheckTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(DailyTasks.main, (Runnable) () -> { // Check date every second to randomize tasks
             String now = DateManager.getFormattedDate("%Y/%M/%D"); // Set now as date
             if(!lastRandomizedDate.equals(now)) { // If date is not last randomized date
-                DailyTasks.main.getLogger().info("Randomizing tasks! Last randomized: " + lastRandomizedDate + ", current date: " + now);
                 TaskManager.RandomizeTasks(3); // Randomize 3 new tasks
-                if(DateManager.getFormattedDate("%D").equals("1")) TaskManager.RandomizeMonthReward();
+                if(DateManager.getFormattedDate("%D").equals("1")
+                        || TaskManager.getThisMonthReward() == null) {
+                    TaskManager.RandomizeMonthReward();
+                }
                 lastRandomizedDate = now; // Set randomized date to now
                 DataHandler.saveLastRandomized(now); // Save randomized tasks
             }

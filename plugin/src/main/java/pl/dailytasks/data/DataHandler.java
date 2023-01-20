@@ -9,7 +9,6 @@ import pl.dailytasks.tasks.RewardObject;
 import pl.dailytasks.tasks.TaskManager;
 import pl.dailytasks.tasks.TaskObject;
 import pl.dailytasks.util.DateManager;
-import pl.dailytasks.util.RandomNumber;
 
 import java.io.File;
 import java.io.IOException;
@@ -184,10 +183,18 @@ public class DataHandler {
     }
 
     public static void loadPluginData() {
-        YamlConfiguration yml = YamlConfiguration.loadConfiguration(createPluginData());
+        File pluginDataFile = createPluginData();
+        YamlConfiguration yml = YamlConfiguration.loadConfiguration(pluginDataFile);
         ConfigurationSection section = yml.getConfigurationSection("history");
         if(section != null) {
             for(String key : section.getKeys(false)) {
+                String[] dateArray = key.split("/");
+                if(!DateManager.isUsingFakeCalendar() && deleteOldData) {
+                    if(Integer.parseInt(dateArray[0]) <= DateManager.getYear() && Integer.parseInt(dateArray[1]) < DateManager.getMonth()) {
+                        yml.set("history." + key, null);
+                        continue;
+                    }
+                }
                 List<String> tasks = yml.getStringList("history." + key);
                 List<TaskObject> initializedTasks = new ArrayList<>();
                 for(String event : tasks) {
@@ -205,7 +212,11 @@ public class DataHandler {
                 for (String key : section.getKeys(false)) {
                     RewardObject reward = new RewardObject(yml.getString(rewardType + "-reward-history." + key),
                             0, 0, (rewardType == "month"));
-                    TaskManager.dayRewardList.put(key, reward);
+                    if(rewardType == "day") {
+                        TaskManager.dayRewardList.put(key, reward);
+                    } else {
+                        TaskManager.monthRewardList.put(key, reward);
+                    }
                     reward.initializedCommand = reward.command;
                 }
             }
@@ -213,6 +224,12 @@ public class DataHandler {
         DailyTasks.lastRandomizedDate = yml.getString("data.lastRandomized");
         DataHandler.deleteOldData = yml.getBoolean("options.deleteOldData");
         DailyTasks.runDateCheck();
+        try {
+            yml.save(pluginDataFile);
+        } catch(IOException e) {
+            DailyTasks.main.getLogger().info("Cannot save pluginData.yml");
+            DailyTasks.main.getLogger().info("IO Exception: " + e);
+        }
     }
 
     public static void saveTodayTasks() {
@@ -383,11 +400,13 @@ public class DataHandler {
             ConfigurationSection section = yml.getConfigurationSection(rewardType + "-rewards");
             if(section == null) continue;
             for(String key : section.getKeys(false)) {
+                if(!yml.getBoolean(rewardType + "-rewards." + key + ".enabled")) continue;
                 DailyTasks.RewardPool.add( new RewardObject(yml.getString(rewardType + "-rewards." + key + ".command"),
                         yml.getInt(rewardType + "-rewards." + key + ".numberMin"),
-                        yml.getInt(rewardType + "-rewards." + key + ".command"),
+                        yml.getInt(rewardType + "-rewards." + key + ".numberMax"),
                         (rewardType.equals("month")) )
                 );
+                DailyTasks.main.getLogger().info("Loaded " + rewardType + " reward: " + key);
             }
         }
     }
