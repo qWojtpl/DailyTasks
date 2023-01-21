@@ -45,6 +45,8 @@ public class Commands implements CommandExecutor {
             c_CheckAuto(sender, args);
         } else if(args[0].equalsIgnoreCase("complete")) {
             c_Complete(sender, args);
+        } else if(args[0].equalsIgnoreCase("checkcompleted")) {
+            c_CheckComplete(sender, args);
         } else {
             ShowHelp(sender, 1);
         }
@@ -200,6 +202,54 @@ public class Commands implements CommandExecutor {
         }
     }
 
+    private static void c_CheckComplete(CommandSender sender, String[] args) {
+        if(args.length < 2) {
+            ShowHelp(sender, 2);
+            return;
+        }
+        if(args[1].equalsIgnoreCase("day")) {
+            if(!PermissionManager.checkSenderPermission(sender, PermissionManager.getPermission("dt.checkcomplete.day"))) return;
+            if(args.length < 4) {
+                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt checkcompleted day <nick> <D>");
+                return;
+            }
+            Player p = PlayerUtil.getPlayerByNick(args[2]);
+            PlayerTasks pt = PlayerTasks.Create(p);
+            int day;
+            try {
+                day = Integer.parseInt(args[3]);
+            } catch(NumberFormatException e) {
+                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt checkcompleted day <nick> <D>");
+                return;
+            }
+            if(pt.checkIfCompletedDay(day)) {
+                sender.sendMessage(DailyTasks.getMessage("prefix") + " §a" + p.getName() + " completed " + day + " day tasks!");
+            } else {
+                sender.sendMessage(DailyTasks.getMessage("prefix") + " §c" + p.getName() + " doesn't completed " + day + " day tasks!");
+            }
+        } else if(args[1].equalsIgnoreCase("date")) {
+            if(!PermissionManager.checkSenderPermission(sender, PermissionManager.getPermission("dt.checkcomplete.date"))) return;
+            if(args.length < 6) {
+                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt checkcompleted date <nick> <Y> <M> <D>");
+                return;
+            }
+            Player p = PlayerUtil.getPlayerByNick(args[2]);
+            PlayerTasks pt = PlayerTasks.Create(p);
+            String formatDate = args[3] + "/" + args[4] + "/" + args[5];
+            if(pt.checkIfCompletedDayByDate(formatDate)) {
+                sender.sendMessage(DailyTasks.getMessage("prefix") + " §a" + p.getName() + " completed " + formatDate + " tasks!");
+            } else {
+                sender.sendMessage(DailyTasks.getMessage("prefix") + " §c" + p.getName() + " doesn't completed " + formatDate + " tasks!");
+            }
+            if(DataHandler.deleteOldData) {
+                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cATTENTION! Delete old data is turned on, " +
+                        "so you can't see old player's tasks");
+            }
+        } else {
+            ShowHelp(sender, 2);
+        }
+    }
+
     public static void ShowHelp(CommandSender sender, int page) {
         if (!PermissionManager.checkSenderPermission(sender, PermissionManager.getPermission("dt.manage"))) return;
         sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
@@ -216,10 +266,10 @@ public class Commands implements CommandExecutor {
                 sender.sendMessage("§c/dt complete day §6<§cnick§6> §e- Complete this day for player");
                 sender.sendMessage("§c/dt complete date §6<§cnick§6> <§cY§6> <§cM§6> <§cD§6> §e- Complete date for player (player won't get reward)");
                 sender.sendMessage("§c/dt complete progress §6<§cnick§6> <§cindex§6> §e- Complete progress for player");
-                sender.sendMessage("§c/dt checkcompleted day §6<§cnick§6> §e- Check if player completed tasks this day");
+                sender.sendMessage("§c/dt checkcompleted day §6<§cnick§6> §6<§cD§6> §e- Check if player completed tasks that day");
                 break;
             case 3:
-                sender.sendMessage("§c/dt checkcompleted date §6<§cnick§6> <§cY§6> <§cM§6> <§cD§6> §e- Check if player completed this date");
+                sender.sendMessage("§c/dt checkcompleted date §6<§cnick§6> <§cM§6> §e- Check if player completed this date");
                 sender.sendMessage("§c/dt checktasks §6<§cY§6> <§cM§6> <§cD§6> §e- Check what tasks was/is in this date");
                 sender.sendMessage("§c/dt reservetask §6<§cY§6> <§cM§6> <§cD§6> <task> §e- Reserve task for date");
                 sender.sendMessage("§c/dt taskpool §e- See task pool");

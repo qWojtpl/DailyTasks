@@ -35,18 +35,21 @@ public class PlayerTasks {
 
     public boolean checkIfCompletedDay(int day) {
         if(completedTasks.containsKey(DateManager.getFormattedDate("%Y/%M/" + day))) {
-            if(completedTasks.get(DateManager.getFormattedDate("%Y/%M/" + day)).size() >= 3) {
-                return true;
-            }
+            return (completedTasks.get(DateManager.getFormattedDate("%Y/%M/" + day)).size() >= 3);
         }
         return false;
     }
 
-    public boolean checkIfCompleted(int index) {
+    public boolean checkIfCompletedDayByDate(String date) {
+        if(completedTasks.containsKey(date)) {
+            return (completedTasks.get(date).size() >= 3);
+        }
+        return false;
+    }
+
+    public boolean checkIfCompletedDayTask(int index) {
         if(completedTasks.containsKey(DateManager.getFormattedDate("%Y/%M/%D"))) {
-            if(getProgress().get(index) >= TaskManager.getTodayTasks().get(index).currentRandom) {
-                return true;
-            }
+            return (getProgress().get(index) >= TaskManager.getTodayTasks().get(index).currentRandom);
         }
         return false;
     }
@@ -58,10 +61,7 @@ public class PlayerTasks {
                 c++;
             }
         }
-        if(c >= DateManager.getDaysOfMonth()) {
-            return true;
-        }
-        return false;
+        return (c >= DateManager.getDaysOfMonth());
     }
 
     public List<Integer> getProgress() {

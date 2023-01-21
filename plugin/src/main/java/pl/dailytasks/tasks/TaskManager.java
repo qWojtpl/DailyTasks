@@ -34,7 +34,7 @@ public class TaskManager {
             if(!taskEvent[2].equalsIgnoreCase(givenEvent[1])) {
                 continue;
             }
-            if(pt.checkIfCompleted(i)) {
+            if(pt.checkIfCompletedDayTask(i)) {
                 continue;
             }
             int progress = pt.getProgress().get(i);

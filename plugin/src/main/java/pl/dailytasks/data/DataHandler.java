@@ -211,8 +211,8 @@ public class DataHandler {
             if (section != null) {
                 for (String key : section.getKeys(false)) {
                     RewardObject reward = new RewardObject(yml.getString(rewardType + "-reward-history." + key),
-                            0, 0, (rewardType == "month"));
-                    if(rewardType == "day") {
+                            0, 0, (rewardType.equals("month")));
+                    if(rewardType.equals("day")) {
                         TaskManager.dayRewardList.put(key, reward);
                     } else {
                         TaskManager.monthRewardList.put(key, reward);
@@ -288,7 +288,7 @@ public class DataHandler {
         File pluginDataFile = createPluginData();
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(pluginDataFile);
         if(markAs) {
-            yml.set("auto-complete." + date, markAs);
+            yml.set("auto-complete." + date, true);
         } else {
             yml.set("auto-complete." + date, null);
         }
@@ -359,6 +359,7 @@ public class DataHandler {
         File tasksFile = createTasksFile();
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(tasksFile);
         ConfigurationSection section = yml.getConfigurationSection("tasks");
+        if(section == null) return;
         for(String key : section.getKeys(false)) {
             if(!yml.getBoolean("tasks." + key + ".enabled")) {
                 continue;

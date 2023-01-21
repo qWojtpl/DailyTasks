@@ -21,15 +21,13 @@ public class PermissionManager {
         if(PermissionManager.permissions.containsKey(permission)) {
             return PermissionManager.permissions.get(permission);
         }
+        DailyTasks.main.getLogger().info("Plugin is trying to access null permission! " +
+                "Please report it here https://github.com/qWojtpl/DailyTasks/issues");
         return null;
     }
 
     public static boolean checkSenderPermission(CommandSender sender, Permission permission) {
-        if(permission == null) {
-            DailyTasks.main.getLogger().info("Plugin is trying to access null permission! " +
-                    "Please report it here https://github.com/qWojtpl/DailyTasks/issues");
-            return true;
-        }
+        if(permission == null) return true;
         if(!(sender instanceof Player)) return true;
         if(!sender.hasPermission(permission)) {
             sender.sendMessage(DailyTasks.getMessage("prefix") + " §cYou don't have permission!");
@@ -49,6 +47,8 @@ public class PermissionManager {
         registerPermission("dt.complete.day", "Complete this day for player in DailyTasks");
         registerPermission("dt.complete.date", "Complete date for player in DailyTasks");
         registerPermission("dt.complete.progress", "Complete progress for player in DailyTasks");
+        registerPermission("dt.checkcomplete.day", "Check if player completed that day in DailyTasks");
+        registerPermission("dt.checkcomplete.date", "Check if player completed that date in DailyTasks");
     }
 
 }
