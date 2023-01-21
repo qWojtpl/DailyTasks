@@ -23,11 +23,12 @@ public class Commands implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             if(!PermissionManager.checkSenderPermission(sender, PermissionManager.getPermission("dt.use"))) return true;
-            if (!PermissionManager.checkSenderPermission(sender, PermissionManager.getPermission("dt.manage")) || args.length == 0) {
+            if(args.length == 0) {
                 GUIHandler.New((Player) sender);
                 return true;
             }
         }
+        if(!PermissionManager.checkSenderPermission(sender, PermissionManager.getPermission("dt.manage"))) return true;
         if (args.length == 0) {
             ShowHelp(sender, 1);
             return true;
@@ -52,6 +53,10 @@ public class Commands implements CommandExecutor {
             c_CheckTasks(sender, args);
         } else if(args[0].equalsIgnoreCase("checkrewards")) {
             c_CheckRewards(sender, args);
+        } else if(args[0].equalsIgnoreCase("taskpool")) {
+            c_TaskPool(sender);
+        } else if(args[0].equalsIgnoreCase("rewardpool")) {
+            c_RewardPool(sender);
         } else {
             ShowHelp(sender, 1);
         }
@@ -317,6 +322,32 @@ public class Commands implements CommandExecutor {
             sender.sendMessage(DailyTasks.getMessage("prefix") + " §cATTENTION! Delete old data is turned on, " +
                     "so you can't see old rewards");
         }
+    }
+
+    private static void c_TaskPool(CommandSender sender) {
+        if(!PermissionManager.checkSenderPermission(sender, PermissionManager.getPermission("dt.taskpool"))) return;
+        sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
+        sender.sendMessage("§eShowing task pool:");
+        for(TaskObject to : DailyTasks.TaskPool) {
+            sender.sendMessage("§6->§e " + to.event);
+            sender.sendMessage("§6    => §eMin: §a" + to.min + "§e, max: §a" + to.max);
+        }
+        sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
+    }
+
+    private static void c_RewardPool(CommandSender sender) {
+        if(!PermissionManager.checkSenderPermission(sender, PermissionManager.getPermission("dt.rewardpool"))) return;
+        sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
+        sender.sendMessage("§eShowing reward pool:");
+        for(RewardObject ro : DailyTasks.RewardPool) {
+            String info = "§aDAILY";
+            if(ro.isMonthly) {
+                info = "§2MONTHLY";
+            }
+            sender.sendMessage("§6->§e " + ro.command + " §6(" + info + "§6)");
+            sender.sendMessage("§6    => §eMin: §a" + ro.min + "§e, max: §a" + ro.max);
+        }
+        sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
     }
 
     public static void ShowHelp(CommandSender sender, int page) {
