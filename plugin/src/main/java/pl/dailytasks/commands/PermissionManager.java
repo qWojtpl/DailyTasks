@@ -49,6 +49,8 @@ public class PermissionManager {
         registerPermission("dt.complete.progress", "Complete progress for player in DailyTasks");
         registerPermission("dt.checkcomplete.day", "Check if player completed that day in DailyTasks");
         registerPermission("dt.checkcomplete.date", "Check if player completed that date in DailyTasks");
+        registerPermission("dt.checktasks", "Check what tasks was/is in that date in DailyTasks");
+        registerPermission("dt.checkrewards", "Check what rewards was/is in that date in DailyTasks");
     }
 
 }

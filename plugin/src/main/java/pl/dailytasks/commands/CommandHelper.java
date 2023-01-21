@@ -75,6 +75,40 @@ public class CommandHelper implements TabCompleter {
                         }
                     }
                 }
+            } else if(args[0].equalsIgnoreCase("checkcompleted")) {
+                if(args.length == 2) {
+                    completions.add("day");
+                    completions.add("date");
+                } else if(args.length == 3) {
+                    for(Player p : Bukkit.getOnlinePlayers()) {
+                        completions.add(p.getName());
+                    }
+                } else if(args.length == 4) {
+                    if(args[1].equalsIgnoreCase("day")) {
+                        completions.add(String.valueOf(DateManager.getDay()));
+                    }
+                }
+                if(args.length >= 4) {
+                    if(args[1].equalsIgnoreCase("date")) {
+                        if(args.length == 4) {
+                            completions.add(String.valueOf(DateManager.getYear()));
+                        } else if(args.length == 5) {
+                            completions.add(String.valueOf(DateManager.getMonth()));
+                        } else if(args.length == 6) {
+                            completions.add(String.valueOf(DateManager.getDay()));
+                        }
+                    }
+                }
+            } else if(args[0].equalsIgnoreCase("checktasks") || args[0].equalsIgnoreCase("checkrewards")) {
+                if(args.length == 2) {
+                    completions.add(String.valueOf(DateManager.getYear()));
+                }
+                if(args.length == 3) {
+                    completions.add(String.valueOf(DateManager.getMonth()));
+                }
+                if(args.length == 4) {
+                    completions.add(String.valueOf(DateManager.getDay()));
+                }
             }
         } else {
             completions.add("help");
@@ -86,7 +120,8 @@ public class CommandHelper implements TabCompleter {
             completions.add("complete");
             completions.add("checkcompleted");
             completions.add("checktasks");
-            completions.add("reservetasks");
+            completions.add("checkrewards");
+            completions.add("reserve");
             completions.add("taskpool");
             completions.add("rewardpool");
             completions.add("add");

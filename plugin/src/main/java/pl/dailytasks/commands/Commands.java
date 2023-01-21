@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import pl.dailytasks.DailyTasks;
 import pl.dailytasks.data.DataHandler;
 import pl.dailytasks.tasks.PlayerTasks;
+import pl.dailytasks.tasks.RewardObject;
 import pl.dailytasks.tasks.TaskManager;
 import pl.dailytasks.tasks.TaskObject;
 import pl.dailytasks.util.DateManager;
@@ -46,7 +47,11 @@ public class Commands implements CommandExecutor {
         } else if(args[0].equalsIgnoreCase("complete")) {
             c_Complete(sender, args);
         } else if(args[0].equalsIgnoreCase("checkcompleted")) {
-            c_CheckComplete(sender, args);
+            c_CheckCompleted(sender, args);
+        } else if(args[0].equalsIgnoreCase("checktasks")) {
+            c_CheckTasks(sender, args);
+        } else if(args[0].equalsIgnoreCase("checkrewards")) {
+            c_CheckRewards(sender, args);
         } else {
             ShowHelp(sender, 1);
         }
@@ -60,7 +65,7 @@ public class Commands implements CommandExecutor {
         }
         int page = 1;
         try {
-            page = Integer.valueOf(args[1]);
+            page = Integer.parseInt(args[1]);
         } catch(NumberFormatException e) {
             sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt help <page>");
         } finally {
@@ -82,7 +87,7 @@ public class Commands implements CommandExecutor {
         }
         int[] i_args = new int[6];
         for(int i = 0; i < 6; i++) {
-            i_args[i] = Integer.valueOf(args[i+1]);
+            i_args[i] = Integer.parseInt(args[i+1]);
         }
         DateManager.createFakeCalendar(i_args[0], i_args[1]-1, i_args[2], i_args[3], i_args[4], i_args[5]);
         sender.sendMessage(DailyTasks.getMessage("prefix") + " §aNow using fake calendar. Use /dt removefake to remove fake calendar.");
@@ -202,7 +207,7 @@ public class Commands implements CommandExecutor {
         }
     }
 
-    private static void c_CheckComplete(CommandSender sender, String[] args) {
+    private static void c_CheckCompleted(CommandSender sender, String[] args) {
         if(args.length < 2) {
             ShowHelp(sender, 2);
             return;
@@ -214,6 +219,10 @@ public class Commands implements CommandExecutor {
                 return;
             }
             Player p = PlayerUtil.getPlayerByNick(args[2]);
+            if(p == null) {
+                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCannot find this player!");
+                return;
+            }
             PlayerTasks pt = PlayerTasks.Create(p);
             int day;
             try {
@@ -223,9 +232,9 @@ public class Commands implements CommandExecutor {
                 return;
             }
             if(pt.checkIfCompletedDay(day)) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §a" + p.getName() + " completed " + day + " day tasks!");
+                sender.sendMessage(DailyTasks.getMessage("prefix") + " §a" + p.getName() + " completed " + day + " day's tasks!");
             } else {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §c" + p.getName() + " doesn't completed " + day + " day tasks!");
+                sender.sendMessage(DailyTasks.getMessage("prefix") + " §c" + p.getName() + " doesn't completed " + day + " day's tasks!");
             }
         } else if(args[1].equalsIgnoreCase("date")) {
             if(!PermissionManager.checkSenderPermission(sender, PermissionManager.getPermission("dt.checkcomplete.date"))) return;
@@ -234,12 +243,16 @@ public class Commands implements CommandExecutor {
                 return;
             }
             Player p = PlayerUtil.getPlayerByNick(args[2]);
+            if(p == null) {
+                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCannot find this player!");
+                return;
+            }
             PlayerTasks pt = PlayerTasks.Create(p);
             String formatDate = args[3] + "/" + args[4] + "/" + args[5];
             if(pt.checkIfCompletedDayByDate(formatDate)) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §a" + p.getName() + " completed " + formatDate + " tasks!");
+                sender.sendMessage(DailyTasks.getMessage("prefix") + " §a" + p.getName() + " completed " + formatDate + "'s tasks!");
             } else {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §c" + p.getName() + " doesn't completed " + formatDate + " tasks!");
+                sender.sendMessage(DailyTasks.getMessage("prefix") + " §c" + p.getName() + " doesn't completed " + formatDate + "'s tasks!");
             }
             if(DataHandler.deleteOldData) {
                 sender.sendMessage(DailyTasks.getMessage("prefix") + " §cATTENTION! Delete old data is turned on, " +
@@ -247,6 +260,62 @@ public class Commands implements CommandExecutor {
             }
         } else {
             ShowHelp(sender, 2);
+        }
+    }
+
+    public static void c_CheckTasks(CommandSender sender, String[] args) {
+        if(!PermissionManager.checkSenderPermission(sender, PermissionManager.getPermission("dt.checktasks"))) return;
+        if(args.length < 4) {
+            sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt checktasks <Y> <M> <D>");
+            return;
+        }
+        String date = args[1] + "/" + args[2] + "/" + args[3];
+        if(TaskManager.taskList.containsKey(date)) {
+            List<TaskObject> tasks = TaskManager.taskList.get(date);
+            if(tasks.size() > 0) {
+                sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
+                sender.sendMessage("§eShowing tasks for: " + date);
+                for (TaskObject to : tasks) {
+                    sender.sendMessage("§6->§e " + to.initializedEvent);
+                }
+                sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
+                return;
+            }
+        }
+        sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCannot find tasks for this date..");
+        if(DataHandler.deleteOldData) {
+            sender.sendMessage(DailyTasks.getMessage("prefix") + " §cATTENTION! Delete old data is turned on, " +
+                    "so you can't see old tasks");
+        }
+    }
+
+    public static void c_CheckRewards(CommandSender sender, String[] args) {
+        if(!PermissionManager.checkSenderPermission(sender, PermissionManager.getPermission("dt.checkrewards"))) return;
+        if(args.length < 4) {
+            sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt checkrewards <Y> <M> <D>");
+            return;
+        }
+        String date = args[1] + "/" + args[2] + "/" + args[3];
+        sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
+        if(TaskManager.dayRewardList.containsKey(date)) {
+            RewardObject reward = TaskManager.dayRewardList.get(date);
+            sender.sendMessage("§eShowing daily reward for: " + date);
+            sender.sendMessage("§6->§e " + reward.initializedCommand);
+        } else {
+            sender.sendMessage("§cDaily reward is not initialized, wait for next day or use fake calendar");
+        }
+        String month = args[1] + "/" + args[2];
+        if(TaskManager.monthRewardList.containsKey(month)) {
+            RewardObject monthReward = TaskManager.monthRewardList.get(month);
+            sender.sendMessage("§eShowing monthly reward for: " + month);
+            sender.sendMessage("§6->§e " + monthReward.initializedCommand);
+        } else {
+            sender.sendMessage("§cMonthly reward is not initialized, wait for next day or use fake calendar");
+        }
+        sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
+        if(DataHandler.deleteOldData) {
+            sender.sendMessage(DailyTasks.getMessage("prefix") + " §cATTENTION! Delete old data is turned on, " +
+                    "so you can't see old rewards");
         }
     }
 
@@ -260,23 +329,25 @@ public class Commands implements CommandExecutor {
                 sender.sendMessage("§c/dt fakecalendar §6<§cY§6> <§cM§6> <§cD§6> <§ch§6> <§cm§6> <§cs§6> §e- Set calendar to values");
                 sender.sendMessage("§c/dt removefake §e- Use normal calendar");
                 sender.sendMessage("§c/dt autocomplete §6<§cY§6> <§cM§6> <§cD§6> §e- Toggle date as auto-complete");
+                sender.sendMessage("§c/dt checkauto §6<§cY§6> <§cM§6> <§cD§6> §e- Check if date is marked as auto-complete");
                 break;
             case 2:
-                sender.sendMessage("§c/dt checkauto §6<§cY§6> <§cM§6> <§cD§6> §e- Check if date is marked as auto-complete");
-                sender.sendMessage("§c/dt complete day §6<§cnick§6> §e- Complete this day for player");
+                sender.sendMessage("§c/dt complete day §6<§cnick§6> §e- Complete this day for player (player will get reward)");
                 sender.sendMessage("§c/dt complete date §6<§cnick§6> <§cY§6> <§cM§6> <§cD§6> §e- Complete date for player (player won't get reward)");
-                sender.sendMessage("§c/dt complete progress §6<§cnick§6> <§cindex§6> §e- Complete progress for player");
+                sender.sendMessage("§c/dt complete progress §6<§cnick§6> <§cindex§6> §e- Complete progress for player (if max player will get reward)");
                 sender.sendMessage("§c/dt checkcompleted day §6<§cnick§6> §6<§cD§6> §e- Check if player completed tasks that day");
+                sender.sendMessage("§c/dt checkcompleted date §6<§cnick§6> <§cY§6> <§cM§6> <§cD§6> §e- Check if player completed that date");
+                sender.sendMessage("§c/dt checktasks §6<§cY§6> <§cM§6> <§cD§6> §e- Check what tasks was/is in this date");
                 break;
             case 3:
-                sender.sendMessage("§c/dt checkcompleted date §6<§cnick§6> <§cM§6> §e- Check if player completed this date");
-                sender.sendMessage("§c/dt checktasks §6<§cY§6> <§cM§6> <§cD§6> §e- Check what tasks was/is in this date");
-                sender.sendMessage("§c/dt reservetask §6<§cY§6> <§cM§6> <§cD§6> <task> §e- Reserve task for date");
+                sender.sendMessage("§c/dt checkrewards §6<§cY§6> <§cM§6> <§cD§6> §e- Check what tasks was/is in this date");
                 sender.sendMessage("§c/dt taskpool §e- See task pool");
                 sender.sendMessage("§c/dt rewardpool day §e- See reward pool (for day-rewards)");
+                sender.sendMessage("§c/dt rewardpool month §e- See reward pool (for month-rewards)");
+                sender.sendMessage("§c/dt reserve task §6<§cY§6> <§cM§6> <§cD§6> <task> §e- Reserve task for date");
+                sender.sendMessage("§c/dt reserve reward §6<§cY§6> <§cM§6> <§cD§6> <reward> §e- Reserve reward for date");
                 break;
             case 4:
-                sender.sendMessage("§c/dt rewardpool month §e- See reward pool (for month-rewards)");
                 sender.sendMessage("§c/dt add task §6<§ctask§6> §e- Add task to task pool");
                 sender.sendMessage("§c/dt add reward day §6<§ccommand§6> §e- Add reward to reward pool (for days)");
                 sender.sendMessage("§c/dt add reward month §6<§ccommand§6> §e- Add reward to reward pool (for month)");
