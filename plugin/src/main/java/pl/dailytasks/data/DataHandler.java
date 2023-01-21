@@ -3,6 +3,7 @@ package pl.dailytasks.data;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.yaml.snakeyaml.Yaml;
 import pl.dailytasks.DailyTasks;
 import pl.dailytasks.tasks.PlayerTasks;
 import pl.dailytasks.tasks.RewardObject;
@@ -370,6 +371,21 @@ public class DataHandler {
         }
     }
 
+    public static void addTaskToPool(TaskObject to, String id) {
+        File tasksFile = createTasksFile();
+        YamlConfiguration yml = YamlConfiguration.loadConfiguration(tasksFile);
+        yml.set("tasks." + id + ".enabled", true);
+        yml.set("tasks." + id + ".event", to.event);
+        yml.set("tasks." + id + ".numberMin", to.min);
+        yml.set("tasks." + id + ".numberMax", to.max);
+        try {
+            yml.save(tasksFile);
+        } catch(IOException e) {
+            DailyTasks.main.getLogger().info("Cannot save task-pool.yml");
+            DailyTasks.main.getLogger().info("IO exception: " + e);
+        }
+    }
+
     public static File createRewardFile() {
         File rewardFile = new File(DailyTasks.main.getDataFolder(), "reward-pool.yml");
         if(!rewardFile.exists()) {
@@ -386,7 +402,7 @@ public class DataHandler {
                 yml.set("month-rewards.0.numberMax", 32);
                 yml.save(rewardFile);
             } catch(IOException e) {
-                DailyTasks.main.getLogger().info("Cannot create task-pool.yml");
+                DailyTasks.main.getLogger().info("Cannot create reward-pool.yml");
                 DailyTasks.main.getLogger().info("IO exception: " + e);
             }
         }

@@ -109,6 +109,44 @@ public class CommandHelper implements TabCompleter {
                 if(args.length == 4) {
                     completions.add(String.valueOf(DateManager.getDay()));
                 }
+            } else if(args[0].equalsIgnoreCase("reserve")) {
+                if(args.length == 2) {
+                    completions.add("task");
+                    completions.add("reward");
+                }
+                if(args[1].equalsIgnoreCase("reward")) {
+                    if(args.length == 3) {
+                        completions.add("day");
+                        completions.add("month");
+                    }
+                    if(args.length == 4) {
+                        completions.add(String.valueOf(DateManager.getYear()));
+                    }
+                    if(args.length == 5) {
+                        completions.add(String.valueOf(DateManager.getMonth()));
+                    }
+                    if(args.length == 6) {
+                        completions.add(String.valueOf(DateManager.getDay()));
+                    }
+                } else {
+                    if(args.length == 3) {
+                        completions.add(String.valueOf(DateManager.getYear()));
+                    }
+                    if(args.length == 4) {
+                        completions.add(String.valueOf(DateManager.getMonth()));
+                    }
+                    if(args.length == 5) {
+                        completions.add(String.valueOf(DateManager.getDay()));
+                    }
+                }
+            } else if(args[0].equalsIgnoreCase("add")) {
+                if(args.length == 2) {
+                    completions.add("task");
+                    completions.add("reward");
+                } else if(args[1].equalsIgnoreCase("reward")) {
+                    completions.add("day");
+                    completions.add("month");
+                }
             }
         } else {
             completions.add("help");

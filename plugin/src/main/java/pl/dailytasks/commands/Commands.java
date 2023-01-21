@@ -57,6 +57,10 @@ public class Commands implements CommandExecutor {
             c_TaskPool(sender);
         } else if(args[0].equalsIgnoreCase("rewardpool")) {
             c_RewardPool(sender);
+        } else if(args[0].equalsIgnoreCase("reserve")) {
+            c_Reserve(sender, args);
+        } else if(args[0].equalsIgnoreCase("add")) {
+            c_Add(sender, args);
         } else {
             ShowHelp(sender, 1);
         }
@@ -350,6 +354,45 @@ public class Commands implements CommandExecutor {
         sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
     }
 
+    private static void c_Reserve(CommandSender sender, String[] args) {
+
+    }
+
+    private static void c_Add(CommandSender sender, String[] args) {
+        if(args.length < 2) {
+            ShowHelp(sender, 4);
+            return;
+        }
+        if(args[1].equalsIgnoreCase("task")) {
+            if(!PermissionManager.checkSenderPermission(sender, PermissionManager.getPermission("dt.add.task"))) return;
+            if(args.length < 6) {
+                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt add task <id> <min> <max> <task>");
+                return;
+            }
+            int min, max;
+            try {
+                min = Integer.parseInt(args[3]);
+                max = Integer.parseInt(args[4]);
+            } catch(NumberFormatException e) {
+                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt add task <id> <min> <max> <task>");
+                return;
+            }
+            String event = "";
+            for(int i = 5; i < args.length; i++) {
+                event = event + args[i];
+                if(i != args.length-1) {
+                    event = event + " ";
+                }
+            }
+            TaskObject to = new TaskObject(event, min, max);
+            DailyTasks.TaskPool.add(to);
+            DataHandler.addTaskToPool(to, args[2]);
+            sender.sendMessage(DailyTasks.getMessage("prefix") + " §aAdded " + args[2] + " §ato task pool! If this task existed - overwritten.");
+        } else if(args[1].equalsIgnoreCase("reward")) {
+
+        }
+    }
+
     public static void ShowHelp(CommandSender sender, int page) {
         if (!PermissionManager.checkSenderPermission(sender, PermissionManager.getPermission("dt.manage"))) return;
         sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
@@ -373,13 +416,13 @@ public class Commands implements CommandExecutor {
             case 3:
                 sender.sendMessage("§c/dt checkrewards §6<§cY§6> <§cM§6> <§cD§6> §e- Check what tasks was/is in this date");
                 sender.sendMessage("§c/dt taskpool §e- See task pool");
-                sender.sendMessage("§c/dt rewardpool day §e- See reward pool (for day-rewards)");
-                sender.sendMessage("§c/dt rewardpool month §e- See reward pool (for month-rewards)");
+                sender.sendMessage("§c/dt rewardpool §e- See reward pool");
                 sender.sendMessage("§c/dt reserve task §6<§cY§6> <§cM§6> <§cD§6> <task> §e- Reserve task for date");
-                sender.sendMessage("§c/dt reserve reward §6<§cY§6> <§cM§6> <§cD§6> <reward> §e- Reserve reward for date");
+                sender.sendMessage("§c/dt reserve reward day §6<§cY§6> <§cM§6> <§cD§6> <reward> §e- Reserve reward for date");
+                sender.sendMessage("§c/dt reserve reward month §6<§cY§6> <§cM§6> <reward> §e- Reserve reward for month");
                 break;
             case 4:
-                sender.sendMessage("§c/dt add task §6<§ctask§6> §e- Add task to task pool");
+                sender.sendMessage("§c/dt add task §6<§cmin§6> <§cmax§6> <§ctask§6> §e- Add task to task pool");
                 sender.sendMessage("§c/dt add reward day §6<§ccommand§6> §e- Add reward to reward pool (for days)");
                 sender.sendMessage("§c/dt add reward month §6<§ccommand§6> §e- Add reward to reward pool (for month)");
                 break;
