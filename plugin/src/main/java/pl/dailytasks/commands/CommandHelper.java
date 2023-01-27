@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
+import pl.dailytasks.DailyTasks;
 import pl.dailytasks.util.DateManager;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ public class CommandHelper implements TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        if(!(sender instanceof Player) || !sender.hasPermission("dt.manage")) {
+        if(!(sender instanceof Player) || !sender.hasPermission(DailyTasks.getInstance().getPermissionManager().getPermission("dt.manage"))) {
             return null;
         }
         List<String> completions = new ArrayList<>();

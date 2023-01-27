@@ -3,7 +3,6 @@ package pl.dailytasks.tasks;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import pl.dailytasks.DailyTasks;
-import pl.dailytasks.commands.PermissionManager;
 import pl.dailytasks.data.DataHandler;
 import pl.dailytasks.util.DateManager;
 import pl.dailytasks.util.RandomNumber;
@@ -15,12 +14,12 @@ import java.util.List;
 
 public class TaskManager {
 
-    public static HashMap<String, List<TaskObject>> taskList = new HashMap<>();
-    public static HashMap<String, RewardObject> dayRewardList = new HashMap<>();
-    public static HashMap<String, RewardObject> monthRewardList = new HashMap<>();
+    private final HashMap<String, List<TaskObject>> taskList = new HashMap<>();
+    private final HashMap<String, RewardObject> dayRewardList = new HashMap<>();
+    private final HashMap<String, RewardObject> monthRewardList = new HashMap<>();
 
-    public static void Check(Player p, String checkable) {
-        if(!p.hasPermission(PermissionManager.getPermission("dt.use"))) return;
+    public void Check(Player p, String checkable) {
+        if(!p.hasPermission(DailyTasks.getInstance().getPermissionManager().getPermission("dt.use"))) return;
         int i = -1;
         PlayerTasks pt = PlayerTasks.Create(p);
         if(pt.checkIfCompletedDay(DateManager.getDay())) return;
@@ -48,7 +47,7 @@ public class TaskManager {
         }
     }
 
-    public static void CheckRewards(PlayerTasks pt) {
+    public void CheckRewards(PlayerTasks pt) {
         int playerSum = 0;
         int max = 0;
         int j = 0;
@@ -59,7 +58,7 @@ public class TaskManager {
         }
         if(playerSum >= max) {
             pt.getPlayer().playSound(pt.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, 1.0F, 1.0F);
-            DailyTasks.main.getServer().dispatchCommand(DailyTasks.main.getServer().getConsoleSender(),
+            DailyTasks.getInstance().getServer().dispatchCommand(DailyTasks.getInstance().getServer().getConsoleSender(),
                     getTodayReward().initializedCommand.replace("%player%", pt.getPlayer().getName()));
             String[] splitMessage = DailyTasks.getMessage("complete-day").split("%nl%");
             for(String message : splitMessage) {
@@ -67,7 +66,7 @@ public class TaskManager {
             }
             if(pt.checkIfCompletedMonth()) {
                 pt.getPlayer().playSound(pt.getPlayer().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.0F, 1.0F);
-                DailyTasks.main.getServer().dispatchCommand(DailyTasks.main.getServer().getConsoleSender(),
+                DailyTasks.getInstance().getServer().dispatchCommand(DailyTasks.getInstance().getServer().getConsoleSender(),
                         getThisMonthReward().initializedCommand.replace("%player%", pt.getPlayer().getName()));
                 splitMessage = DailyTasks.getMessage("complete-month").split("%nl%");
                 for (String message : splitMessage) {
@@ -77,7 +76,7 @@ public class TaskManager {
         }
     }
 
-    public static void RandomizeTasks(int numberOfTasks) {
+    public void RandomizeTasks(int numberOfTasks) {
         List<TaskObject> pool = new ArrayList<>(DailyTasks.TaskPool);
         if(pool.size() == 0 || getTodayTasks().size() >= numberOfTasks) return;
         for(int i = 0; i < numberOfTasks; i++) {
@@ -86,78 +85,90 @@ public class TaskManager {
             getTodayTasks().add(new TaskObject(to.event, to.min, to.max));
             pool.remove(index);
         }
-        DailyTasks.main.getLogger().info("Randomizing tasks! Last randomized: " +
+        DailyTasks.getInstance().getLogger().info("Randomizing tasks! Last randomized: " +
                 DailyTasks.lastRandomizedDate + ", current date: " + DateManager.getFormattedDate("%Y/%M/%D"));
         RandomizeDayReward();
         DataHandler.saveTodayTasks();
     }
 
-    public static void RandomizeDayReward() {
+    public void RandomizeDayReward() {
         List<RewardObject> allPool = new ArrayList<>(DailyTasks.RewardPool);
         List<RewardObject> pool = new ArrayList<>();
         for(RewardObject ro : allPool) {
             if(!ro.isMonthly) pool.add(ro);
         }
         if(pool.size() == 0 || getTodayReward() != null) return;
-        DailyTasks.main.getLogger().info("Randomizing daily reward!");
+        DailyTasks.getInstance().getLogger().info("Randomizing daily reward!");
         RewardObject schema = pool.get(RandomNumber.randomInt(0, pool.size()-1));
         dayRewardList.put(DateManager.getFormattedDate("%Y/%M/%D"), new RewardObject(schema.command, schema.min, schema.max, schema.isMonthly));
         DataHandler.saveTodayReward();
     }
 
-    public static void RandomizeMonthReward() {
+    public void RandomizeMonthReward() {
         List<RewardObject> allPool = new ArrayList<>(DailyTasks.RewardPool);
         List<RewardObject> pool = new ArrayList<>();
         for(RewardObject ro : allPool) {
             if(ro.isMonthly) pool.add(ro);
         }
         if(pool.size() == 0 || getThisMonthReward() != null) return;
-        DailyTasks.main.getLogger().info("Randomizing monthly reward!");
+        DailyTasks.getInstance().getLogger().info("Randomizing monthly reward!");
         RewardObject schema = pool.get(RandomNumber.randomInt(0, pool.size()-1));
         monthRewardList.put(DateManager.getFormattedDate("%Y/%M"), new RewardObject(schema.command, schema.min, schema.max, schema.isMonthly));
         DataHandler.saveMonthlyReward();
     }
 
-    public static List<TaskObject> getTodayTasks() {
+    public List<TaskObject> getTodayTasks() {
         if(!taskList.containsKey(DateManager.getFormattedDate("%Y/%M/%D"))) {
             taskList.put(DateManager.getFormattedDate("%Y/%M/%D"), new ArrayList<>());
         }
         return taskList.get(DateManager.getFormattedDate("%Y/%M/%D"));
     }
 
-    public static List<TaskObject> getTasks(int day) {
+    public List<TaskObject> getTasks(int day) {
         if(!taskList.containsKey(DateManager.getFormattedDate("%Y/%M/" + day))) {
             taskList.put(DateManager.getFormattedDate("%Y/%M/" + day), new ArrayList<>());
         }
         return taskList.get(DateManager.getFormattedDate("%Y/%M/" + day));
     }
 
-    public static RewardObject getTodayReward() {
+    public RewardObject getTodayReward() {
         if(!dayRewardList.containsKey(DateManager.getFormattedDate("%Y/%M/%D"))) {
             dayRewardList.put(DateManager.getFormattedDate("%Y/%M/%D"), null);
         }
         return dayRewardList.get(DateManager.getFormattedDate("%Y/%M/%D"));
     }
 
-    public static RewardObject getReward(int day) {
+    public RewardObject getReward(int day) {
         if(!dayRewardList.containsKey(DateManager.getFormattedDate("%Y/%M/" + day))) {
             dayRewardList.put(DateManager.getFormattedDate("%Y/%M/" + day), null);
         }
         return dayRewardList.get(DateManager.getFormattedDate("%Y/%M/" + day));
     }
 
-    public static RewardObject getThisMonthReward() {
+    public RewardObject getThisMonthReward() {
         if(!monthRewardList.containsKey(DateManager.getFormattedDate("%Y/%M"))) {
             monthRewardList.put(DateManager.getFormattedDate("%Y/%M"), null);
         }
         return monthRewardList.get(DateManager.getFormattedDate("%Y/%M"));
     }
 
-    public static RewardObject getMonthReward(int month) {
+    public RewardObject getMonthReward(int month) {
         if(!monthRewardList.containsKey(DateManager.getFormattedDate("%Y/" + month))) {
             monthRewardList.put(DateManager.getFormattedDate("%Y/" + month), null);
         }
         return monthRewardList.get(DateManager.getFormattedDate("%Y/" + month));
+    }
+
+    public HashMap<String, List<TaskObject>> getSourceTaskList() {
+        return this.taskList;
+    }
+
+    public HashMap<String, RewardObject> getSourceDayReward() {
+        return this.dayRewardList;
+    }
+
+    public HashMap<String, RewardObject> getSourceMonthReward() {
+        return this.monthRewardList;
     }
 
 }

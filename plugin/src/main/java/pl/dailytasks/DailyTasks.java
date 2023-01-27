@@ -1,9 +1,9 @@
 package pl.dailytasks;
 
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.java.JavaPlugin;
 import pl.dailytasks.commands.CommandHelper;
 import pl.dailytasks.commands.Commands;
@@ -21,9 +21,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Getter
 public final class DailyTasks extends JavaPlugin {
 
-    public static DailyTasks main; // Main instance
+    private static DailyTasks main; // Main instance
     public static YamlConfiguration messages; // Messages
     public static HashMap<Player, PlayerTasks> playerTaskList = new HashMap<>(); // PlayerTasks list
     public static List<TaskObject> TaskPool = new ArrayList<>(); // Task pool to randomize tasks
@@ -31,11 +32,15 @@ public final class DailyTasks extends JavaPlugin {
     public static String lastRandomizedDate = ""; // Last randomized date
     public static int dateCheckTask;
     public static boolean dataCheckInitialized = false;
+    private PermissionManager permissionManager;
+    private TaskManager taskManager;
 
     @Override
     public void onEnable() {
         main = this; // Set main instance as this
-        PermissionManager.loadPermissions(); // Register permissions
+        permissionManager = new PermissionManager();
+        permissionManager.loadPermissions(); // Register permissions
+        taskManager = new TaskManager();
         getServer().getPluginManager().registerEvents(new Events(), this); // Register events
         getCommand("dailytasks").setExecutor(new Commands()); // Register command
         getCommand("dailytasks").setTabCompleter(new CommandHelper()); // Register tab completer
@@ -63,9 +68,9 @@ public final class DailyTasks extends JavaPlugin {
         RewardPool = new ArrayList<>();
         lastRandomizedDate = "";
         dataCheckInitialized = false;
-        TaskManager.dayRewardList = new HashMap<>();
-        TaskManager.monthRewardList = new HashMap<>();
-        TaskManager.taskList = new HashMap<>();
+        taskManager.getSourceDayReward().clear();
+        taskManager.getSourceMonthReward().clear();
+        taskManager.getSourceTaskList().clear();
         DataHandler.load(); // Load data (configs, tasks etc)
         getLogger().info("Reloaded.");
         for(Player p : Bukkit.getOnlinePlayers()) {
@@ -73,18 +78,18 @@ public final class DailyTasks extends JavaPlugin {
         }
     }
 
-    public static void runDateCheck() {
+    public void runDateCheck() {
         if(dataCheckInitialized) {
             Bukkit.getScheduler().cancelTask(dateCheckTask); // If ever date check initialized, cancel previous task
         }
         dataCheckInitialized = true;
-        dateCheckTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(DailyTasks.main, (Runnable) () -> { // Check date every second to randomize tasks
+        dateCheckTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(DailyTasks.getInstance(), (Runnable) () -> { // Check date every second to randomize tasks
             String now = DateManager.getFormattedDate("%Y/%M/%D"); // Set now as date
             if(!lastRandomizedDate.equals(now)) { // If date is not last randomized date
-                TaskManager.RandomizeTasks(3); // Randomize 3 new tasks
+                taskManager.RandomizeTasks(3); // Randomize 3 new tasks
                 if(DateManager.getFormattedDate("%D").equals("1")
-                        || TaskManager.getThisMonthReward() == null) {
-                    TaskManager.RandomizeMonthReward();
+                        || taskManager.getThisMonthReward() == null) {
+                    taskManager.RandomizeMonthReward();
                 }
                 lastRandomizedDate = now; // Set randomized date to now
                 DataHandler.saveLastRandomized(now); // Save randomized tasks
@@ -97,6 +102,10 @@ public final class DailyTasks extends JavaPlugin {
             return messages.getString("messages." + path);
         }
         return "§cNULL§f ";
+    }
+
+    public static DailyTasks getInstance() {
+        return DailyTasks.main;
     }
 
 }

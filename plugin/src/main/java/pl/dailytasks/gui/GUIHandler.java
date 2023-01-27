@@ -21,8 +21,8 @@ import java.util.List;
 
 public class GUIHandler {
 
-    public Player player;
-    public Inventory inventory;
+    private final Player player;
+    private Inventory inventory;
     public static List<GUIHandler> registeredInventories = new ArrayList<>();
 
     public GUIHandler(Player p) {
@@ -45,6 +45,10 @@ public class GUIHandler {
         return this.player;
     }
 
+    public Inventory getInventory() {
+        return this.inventory;
+    }
+
     public void Create() {
         inventory = Bukkit.createInventory(null, 54, DailyTasks.getMessage("title"));
         for(int i = 0; i < 54; i++) {
@@ -63,13 +67,14 @@ public class GUIHandler {
             String task = "";
             PlayerTasks pt = PlayerTasks.Create(player);
             if(day <= currentDay) {
-                if(TaskManager.getTasks(day).size() != 0) {
+                TaskManager tm = DailyTasks.getInstance().getTaskManager();
+                if(tm.getTasks(day).size() != 0) {
                     task = DailyTasks.getMessage("tasks") + "%nl%";
                     int j = 0;
-                    if(TaskManager.getTasks(day).size() == 0) {
+                    if(tm.getTasks(day).size() == 0) {
                         task = task + "§c" + DailyTasks.getMessage("day-without-task");
                     } else {
-                        for (TaskObject to : TaskManager.getTasks(day)) {
+                        for (TaskObject to : tm.getTasks(day)) {
                             int playerProgress = pt.getProgressByDay(day).get(j);
                             int maxProgress = to.currentRandom;
                             String progress = playerProgress + "/" + maxProgress;

@@ -32,16 +32,16 @@ public class DataHandler {
         File dataFile = getPlayerFile(p); // Get player file
         if(!dataFile.exists()) { // If file is not exists
             try {
-                File directory = new File(DailyTasks.main.getDataFolder(), "/playerData/"); // Get directory
+                File directory = new File(DailyTasks.getInstance().getDataFolder(), "/playerData/"); // Get directory
                 if(!directory.exists()) directory.mkdir(); // Create directory
                 dataFile.createNewFile(); // Create file
             } catch(IOException e) {
-                DailyTasks.main.getLogger().info("Cannot create " + p.getName() + ".yml");
-                DailyTasks.main.getLogger().info("IO Exception: " + e);
+                DailyTasks.getInstance().getLogger().info("Cannot create " + p.getName() + ".yml");
+                DailyTasks.getInstance().getLogger().info("IO Exception: " + e);
             }
         } else {
             if(!dataFile.canRead() || !dataFile.canWrite()) { // If file cannot be read or written - send info to console
-                DailyTasks.main.getLogger().info("Cannot create " + p.getName() + ".yml");
+                DailyTasks.getInstance().getLogger().info("Cannot create " + p.getName() + ".yml");
             }
         }
         return dataFile; // Return file
@@ -70,14 +70,14 @@ public class DataHandler {
                 }
                 progress.add(yml.getInt("saved." + date + "." + i + ".p")); // Add progress - if not set - default int value is 0
             }
-            pt.completedTasks.put(date, completed); // Put completed tasks as date key
-            pt.progress.put(date, progress); // Put tasks progress as date key
+            pt.getSourceCompletedTasks().put(date, completed); // Put completed tasks as date key
+            pt.getSourceProgress().put(date, progress); // Put tasks progress as date key
         }
         try {
             yml.save(playerFile);
         } catch(IOException e) {
-            DailyTasks.main.getLogger().info("Cannot save " + pt.getPlayer().getName() + ".yml");
-            DailyTasks.main.getLogger().info("IO Exception: " + e);
+            DailyTasks.getInstance().getLogger().info("Cannot save " + pt.getPlayer().getName() + ".yml");
+            DailyTasks.getInstance().getLogger().info("IO Exception: " + e);
         }
     }
 
@@ -101,8 +101,8 @@ public class DataHandler {
         try {
             yml.save(playerFile);
         } catch(IOException e) {
-            DailyTasks.main.getLogger().info("Cannot save " + pt.getPlayer().getName() + ".yml");
-            DailyTasks.main.getLogger().info("IO Exception: " + e);
+            DailyTasks.getInstance().getLogger().info("Cannot save " + pt.getPlayer().getName() + ".yml");
+            DailyTasks.getInstance().getLogger().info("IO Exception: " + e);
         }
     }
 
@@ -113,8 +113,8 @@ public class DataHandler {
         try {
             yml.save(playerFile);
         } catch(IOException e) {
-            DailyTasks.main.getLogger().info("Cannot save " + pt.getPlayer().getName() + ".yml");
-            DailyTasks.main.getLogger().info("IO Exception: " + e);
+            DailyTasks.getInstance().getLogger().info("Cannot save " + pt.getPlayer().getName() + ".yml");
+            DailyTasks.getInstance().getLogger().info("IO Exception: " + e);
         }
     }
 
@@ -125,13 +125,13 @@ public class DataHandler {
         try {
             yml.save(playerFile);
         } catch(IOException e) {
-            DailyTasks.main.getLogger().info("Cannot save " + pt.getPlayer().getName() + ".yml");
-            DailyTasks.main.getLogger().info("IO Exception: " + e);
+            DailyTasks.getInstance().getLogger().info("Cannot save " + pt.getPlayer().getName() + ".yml");
+            DailyTasks.getInstance().getLogger().info("IO Exception: " + e);
         }
     }
 
     public static File getPlayerFile(Player p) {
-        return new File(DailyTasks.main.getDataFolder(), "/playerData/" + p.getName() + ".yml");
+        return new File(DailyTasks.getInstance().getDataFolder(), "/playerData/" + p.getName() + ".yml");
     }
 
     public static void loadCalendar() {
@@ -159,15 +159,15 @@ public class DataHandler {
         try {
             yml.save(pluginDataFile);
         } catch(IOException e) {
-            DailyTasks.main.getLogger().info("Cannot save pluginData.yml");
-            DailyTasks.main.getLogger().info("IO Exception: " + e);
+            DailyTasks.getInstance().getLogger().info("Cannot save pluginData.yml");
+            DailyTasks.getInstance().getLogger().info("IO Exception: " + e);
         }
     }
 
     public static File createPluginData() {
-        File directory = new File(DailyTasks.main.getDataFolder(), "/data/");
+        File directory = new File(DailyTasks.getInstance().getDataFolder(), "/data/");
         if(!directory.exists()) directory.mkdir();
-        File pluginDataFile = new File(DailyTasks.main.getDataFolder() + "/data/pluginData.yml");
+        File pluginDataFile = new File(DailyTasks.getInstance().getDataFolder() + "/data/pluginData.yml");
         if(!pluginDataFile.exists()) {
             try {
                 pluginDataFile.createNewFile();
@@ -176,8 +176,8 @@ public class DataHandler {
                 yml.set("options.deleteOldData", true);
                 yml.save(pluginDataFile);
             } catch(IOException e) {
-                DailyTasks.main.getLogger().info("Cannot create pluginData.yml");
-                DailyTasks.main.getLogger().info("IO Exception: " + e);
+                DailyTasks.getInstance().getLogger().info("Cannot create pluginData.yml");
+                DailyTasks.getInstance().getLogger().info("IO Exception: " + e);
             }
         }
         return pluginDataFile;
@@ -187,6 +187,7 @@ public class DataHandler {
         File pluginDataFile = createPluginData();
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(pluginDataFile);
         ConfigurationSection section = yml.getConfigurationSection("history");
+        TaskManager tm = DailyTasks.getInstance().getTaskManager();
         if(section != null) {
             for(String key : section.getKeys(false)) {
                 String[] dateArray = key.split("/");
@@ -203,7 +204,7 @@ public class DataHandler {
                     TaskObject to = new TaskObject(event, Integer.parseInt(taskInfo[1]), Integer.parseInt(taskInfo[1]));
                     initializedTasks.add(to);
                 }
-                TaskManager.taskList.put(key, initializedTasks);
+                tm.getSourceTaskList().put(key, initializedTasks);
             }
         }
         String[] rewardTypes = new String[]{"day", "month"};
@@ -214,9 +215,9 @@ public class DataHandler {
                     RewardObject reward = new RewardObject(yml.getString(rewardType + "-reward-history." + key),
                             0, 0, (rewardType.equals("month")));
                     if(rewardType.equals("day")) {
-                        TaskManager.dayRewardList.put(key, reward);
+                        tm.getSourceDayReward().put(key, reward);
                     } else {
-                        TaskManager.monthRewardList.put(key, reward);
+                        tm.getSourceMonthReward().put(key, reward);
                     }
                     reward.initializedCommand = reward.command;
                 }
@@ -224,12 +225,12 @@ public class DataHandler {
         }
         DailyTasks.lastRandomizedDate = yml.getString("data.lastRandomized");
         DataHandler.deleteOldData = yml.getBoolean("options.deleteOldData");
-        DailyTasks.runDateCheck();
+        DailyTasks.getInstance().runDateCheck();
         try {
             yml.save(pluginDataFile);
         } catch(IOException e) {
-            DailyTasks.main.getLogger().info("Cannot save pluginData.yml");
-            DailyTasks.main.getLogger().info("IO Exception: " + e);
+            DailyTasks.getInstance().getLogger().info("Cannot save pluginData.yml");
+            DailyTasks.getInstance().getLogger().info("IO Exception: " + e);
         }
     }
 
@@ -237,39 +238,41 @@ public class DataHandler {
         File pluginDataFile = createPluginData();
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(pluginDataFile);
         List<String> tasks = new ArrayList<>();
-        for(TaskObject to : TaskManager.getTodayTasks()) {
+        for(TaskObject to : DailyTasks.getInstance().getTaskManager().getTodayTasks()) {
             tasks.add(to.initializedEvent);
         }
         yml.set("history." + DateManager.getFormattedDate("%Y/%M/%D"), tasks);
         try {
             yml.save(pluginDataFile);
         } catch(IOException e) {
-            DailyTasks.main.getLogger().info("Cannot save pluginData.yml");
-            DailyTasks.main.getLogger().info("IO Exception: " + e);
+            DailyTasks.getInstance().getLogger().info("Cannot save pluginData.yml");
+            DailyTasks.getInstance().getLogger().info("IO Exception: " + e);
         }
     }
 
     public static void saveTodayReward() {
         File pluginDataFile = createPluginData();
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(pluginDataFile);
-        yml.set("day-reward-history." + DateManager.getFormattedDate("%Y/%M/%D"), TaskManager.getTodayReward().initializedCommand);
+        yml.set("day-reward-history." + DateManager.getFormattedDate("%Y/%M/%D"),
+                DailyTasks.getInstance().getTaskManager().getTodayReward().initializedCommand);
         try {
             yml.save(pluginDataFile);
         } catch(IOException e) {
-            DailyTasks.main.getLogger().info("Cannot save pluginData.yml");
-            DailyTasks.main.getLogger().info("IO Exception: " + e);
+            DailyTasks.getInstance().getLogger().info("Cannot save pluginData.yml");
+            DailyTasks.getInstance().getLogger().info("IO Exception: " + e);
         }
     }
 
     public static void saveMonthlyReward() {
         File pluginDataFile = createPluginData();
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(pluginDataFile);
-        yml.set("month-reward-history." + DateManager.getFormattedDate("%Y/%M"), TaskManager.getThisMonthReward().initializedCommand);
+        yml.set("month-reward-history." + DateManager.getFormattedDate("%Y/%M"),
+                DailyTasks.getInstance().getTaskManager().getThisMonthReward().initializedCommand);
         try {
             yml.save(pluginDataFile);
         } catch(IOException e) {
-            DailyTasks.main.getLogger().info("Cannot save pluginData.yml");
-            DailyTasks.main.getLogger().info("IO Exception: " + e);
+            DailyTasks.getInstance().getLogger().info("Cannot save pluginData.yml");
+            DailyTasks.getInstance().getLogger().info("IO Exception: " + e);
         }
     }
 
@@ -280,8 +283,8 @@ public class DataHandler {
         try {
             yml.save(pluginDataFile);
         } catch(IOException e) {
-            DailyTasks.main.getLogger().info("Cannot save pluginData.yml");
-            DailyTasks.main.getLogger().info("IO Exception: " + e);
+            DailyTasks.getInstance().getLogger().info("Cannot save pluginData.yml");
+            DailyTasks.getInstance().getLogger().info("IO Exception: " + e);
         }
     }
 
@@ -296,8 +299,8 @@ public class DataHandler {
         try {
             yml.save(pluginDataFile);
         } catch(IOException e) {
-            DailyTasks.main.getLogger().info("Cannot save pluginData.yml");
-            DailyTasks.main.getLogger().info("IO Exception: " + e);
+            DailyTasks.getInstance().getLogger().info("Cannot save pluginData.yml");
+            DailyTasks.getInstance().getLogger().info("IO Exception: " + e);
         }
     }
 
@@ -314,7 +317,7 @@ public class DataHandler {
     }
 
     public static void loadMessages() {
-        File messageFile = new File(DailyTasks.main.getDataFolder(), "messages.yml");
+        File messageFile = new File(DailyTasks.getInstance().getDataFolder(), "messages.yml");
         if(!messageFile.exists()) {
             try {
                 YamlConfiguration yml = new YamlConfiguration();
@@ -332,14 +335,14 @@ public class DataHandler {
                 yml.set("messages.complete-month", "§c§k----------------------------%nl% %nl%§e§lYou completed month §a{0}%nl%§e§lReward: §a{1} %nl% %nl%§c§k----------------------------");
                 yml.save(messageFile);
             } catch(IOException e) {
-                DailyTasks.main.getLogger().info("IO exception: " + e);
+                DailyTasks.getInstance().getLogger().info("IO exception: " + e);
             }
         }
         DailyTasks.messages = YamlConfiguration.loadConfiguration(messageFile);
     }
 
     public static File createTasksFile() {
-        File tasksFile = new File(DailyTasks.main.getDataFolder(), "task-pool.yml");
+        File tasksFile = new File(DailyTasks.getInstance().getDataFolder(), "task-pool.yml");
         if(!tasksFile.exists()) {
             try {
                 YamlConfiguration yml = new YamlConfiguration();
@@ -349,8 +352,8 @@ public class DataHandler {
                 yml.set("tasks.0.numberMax", 10);
                 yml.save(tasksFile);
             } catch(IOException e) {
-                DailyTasks.main.getLogger().info("Cannot create task-pool.yml");
-                DailyTasks.main.getLogger().info("IO exception: " + e);
+                DailyTasks.getInstance().getLogger().info("Cannot create task-pool.yml");
+                DailyTasks.getInstance().getLogger().info("IO exception: " + e);
             }
         }
         return tasksFile;
@@ -367,7 +370,7 @@ public class DataHandler {
             }
             DailyTasks.TaskPool.add(new TaskObject(yml.getString("tasks." + key + ".event"),
                     yml.getInt("tasks." + key + ".numberMin"), yml.getInt("tasks." + key + ".numberMax")));
-            DailyTasks.main.getLogger().info("Loaded task: " + key);
+            DailyTasks.getInstance().getLogger().info("Loaded task: " + key);
         }
     }
 
@@ -381,13 +384,13 @@ public class DataHandler {
         try {
             yml.save(tasksFile);
         } catch(IOException e) {
-            DailyTasks.main.getLogger().info("Cannot save task-pool.yml");
-            DailyTasks.main.getLogger().info("IO exception: " + e);
+            DailyTasks.getInstance().getLogger().info("Cannot save task-pool.yml");
+            DailyTasks.getInstance().getLogger().info("IO exception: " + e);
         }
     }
 
     public static File createRewardFile() {
-        File rewardFile = new File(DailyTasks.main.getDataFolder(), "reward-pool.yml");
+        File rewardFile = new File(DailyTasks.getInstance().getDataFolder(), "reward-pool.yml");
         if(!rewardFile.exists()) {
             try {
                 rewardFile.createNewFile();
@@ -402,8 +405,8 @@ public class DataHandler {
                 yml.set("month-rewards.0.numberMax", 32);
                 yml.save(rewardFile);
             } catch(IOException e) {
-                DailyTasks.main.getLogger().info("Cannot create reward-pool.yml");
-                DailyTasks.main.getLogger().info("IO exception: " + e);
+                DailyTasks.getInstance().getLogger().info("Cannot create reward-pool.yml");
+                DailyTasks.getInstance().getLogger().info("IO exception: " + e);
             }
         }
         return rewardFile;
@@ -423,7 +426,7 @@ public class DataHandler {
                         yml.getInt(rewardType + "-rewards." + key + ".numberMax"),
                         (rewardType.equals("month")) )
                 );
-                DailyTasks.main.getLogger().info("Loaded " + rewardType + " reward: " + key);
+                DailyTasks.getInstance().getLogger().info("Loaded " + rewardType + " reward: " + key);
             }
         }
     }

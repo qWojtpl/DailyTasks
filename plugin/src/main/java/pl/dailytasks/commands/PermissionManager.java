@@ -9,24 +9,24 @@ import java.util.HashMap;
 
 public class PermissionManager {
 
-    public static HashMap<String, Permission> permissions = new HashMap<>();
+    private final HashMap<String, Permission> permissions = new HashMap<>();
 
-    public static void registerPermission(String permission, String description) {
+    public void registerPermission(String permission, String description) {
         Permission perm = new Permission(permission, description);
-        DailyTasks.main.getServer().getPluginManager().addPermission(perm);
+        DailyTasks.getInstance().getServer().getPluginManager().addPermission(perm);
         permissions.put(permission, perm);
     }
 
-    public static Permission getPermission(String permission) {
-        if(PermissionManager.permissions.containsKey(permission)) {
-            return PermissionManager.permissions.get(permission);
+    public Permission getPermission(String permission) {
+        if(this.permissions.containsKey(permission)) {
+            return this.permissions.get(permission);
         }
-        DailyTasks.main.getLogger().info("Plugin is trying to access null permission! " +
+        DailyTasks.getInstance().getLogger().info("Plugin is trying to access null permission! " +
                 "Please report it here https://github.com/qWojtpl/DailyTasks/issues");
         return null;
     }
 
-    public static boolean checkSenderPermission(CommandSender sender, Permission permission) {
+    public boolean checkSenderPermission(CommandSender sender, Permission permission) {
         if(permission == null) return true;
         if(!(sender instanceof Player)) return true;
         if(!sender.hasPermission(permission)) {
@@ -36,7 +36,7 @@ public class PermissionManager {
         return true;
     }
 
-    public static void loadPermissions() {
+    public void loadPermissions() {
         registerPermission("dt.use", "Use DailyTasks");
         registerPermission("dt.manage", "Manage DailyTasks");
         registerPermission("dt.reload", "Reload DailyTasks configuration");

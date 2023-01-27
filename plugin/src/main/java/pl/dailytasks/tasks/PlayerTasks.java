@@ -1,5 +1,6 @@
 package pl.dailytasks.tasks;
 
+import lombok.Getter;
 import org.bukkit.entity.Player;
 import pl.dailytasks.DailyTasks;
 import pl.dailytasks.data.DataHandler;
@@ -11,9 +12,9 @@ import java.util.List;
 
 public class PlayerTasks {
 
-    public Player player;
-    public HashMap<String, List<Integer>> completedTasks = new HashMap<>();
-    public HashMap<String, List<Integer>> progress = new HashMap<>();
+    private Player player;
+    private final HashMap<String, List<Integer>> completedTasks = new HashMap<>();
+    private final HashMap<String, List<Integer>> progress = new HashMap<>();
 
     public PlayerTasks(Player p) {
         this.player = p;
@@ -27,10 +28,6 @@ public class PlayerTasks {
             return DailyTasks.playerTaskList.get(p);
         }
         return new PlayerTasks(p);
-    }
-
-    public Player getPlayer() {
-        return this.player;
     }
 
     public boolean checkIfCompletedDay(int day) {
@@ -49,7 +46,7 @@ public class PlayerTasks {
 
     public boolean checkIfCompletedDayTask(int index) {
         if(completedTasks.containsKey(DateManager.getFormattedDate("%Y/%M/%D"))) {
-            return (getProgress().get(index) >= TaskManager.getTodayTasks().get(index).currentRandom);
+            return (getProgress().get(index) >= DailyTasks.getInstance().getTaskManager().getTodayTasks().get(index).currentRandom);
         }
         return false;
     }
@@ -91,5 +88,17 @@ public class PlayerTasks {
             completedTasks.put(DateManager.getFormattedDate("%Y/%M/" + day), new ArrayList<>());
         }
         return completedTasks.get(DateManager.getFormattedDate("%Y/%M/" + day));
+    }
+
+    public Player getPlayer() {
+        return this.player;
+    }
+
+    public HashMap<String, List<Integer>> getSourceCompletedTasks() {
+        return this.completedTasks;
+    }
+
+    public HashMap<String, List<Integer>> getSourceProgress() {
+        return this.progress;
     }
 }
