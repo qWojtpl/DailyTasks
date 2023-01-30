@@ -98,14 +98,16 @@ public class Commands implements CommandExecutor {
         for(int i = 0; i < 6; i++) {
             i_args[i] = Integer.parseInt(args[i+1]);
         }
-        DateManager.createFakeCalendar(i_args[0], i_args[1]-1, i_args[2], i_args[3], i_args[4], i_args[5]);
+        DateManager dm = DailyTasks.getInstance().getDateManager();
+        dm.createFakeCalendar(i_args[0], i_args[1]-1, i_args[2], i_args[3], i_args[4], i_args[5]);
         sender.sendMessage(DailyTasks.getMessage("prefix") + " §aNow using fake calendar. Use /dt removefake to remove fake calendar.");
     }
 
     private void c_RemoveFakeCalendar(CommandSender sender) {
         if(!DailyTasks.getInstance().getPermissionManager().checkSenderPermission(sender, DailyTasks.getInstance().getPermissionManager().getPermission("dt.removefake"))) return;
-        if(DateManager.isUsingFakeCalendar()) {
-            DateManager.removeFakeCalendar();
+        DateManager dm = DailyTasks.getInstance().getDateManager();
+        if(dm.isUsingFakeCalendar()) {
+            dm.removeFakeCalendar();
             sender.sendMessage(DailyTasks.getMessage("prefix") + " §aNow using real calendar!");
         } else {
             sender.sendMessage(DailyTasks.getMessage("prefix") + " §cYou're not using fake calendar!");
@@ -187,7 +189,7 @@ public class Commands implements CommandExecutor {
                 threeTasks.add(i);
                 DataHandler.addPlayerCompletedTaskByDate(pt, i, date);
             }
-            pt.getSourceCompletedTasks().put(DateManager.getFormattedDate(date), threeTasks);
+            pt.getSourceCompletedTasks().put(date, threeTasks);
             sender.sendMessage(DailyTasks.getMessage("prefix") + " §aAdded " + date + " as completed date for " + p.getName() + "!");
         } else if(args[1].equalsIgnoreCase("progress")) {
             if(!DailyTasks.getInstance().getPermissionManager().checkSenderPermission(sender, DailyTasks.getInstance().getPermissionManager().getPermission("dt.complete.progress"))) return;

@@ -34,6 +34,7 @@ public final class DailyTasks extends JavaPlugin {
     public static boolean dataCheckInitialized = false;
     private PermissionManager permissionManager;
     private TaskManager taskManager;
+    private DateManager dateManager;
 
     @Override
     public void onEnable() {
@@ -41,6 +42,7 @@ public final class DailyTasks extends JavaPlugin {
         permissionManager = new PermissionManager();
         permissionManager.loadPermissions(); // Register permissions
         taskManager = new TaskManager();
+        dateManager = new DateManager();
         getServer().getPluginManager().registerEvents(new Events(), this); // Register events
         getCommand("dailytasks").setExecutor(new Commands()); // Register command
         getCommand("dailytasks").setTabCompleter(new CommandHelper()); // Register tab completer
@@ -84,10 +86,10 @@ public final class DailyTasks extends JavaPlugin {
         }
         dataCheckInitialized = true;
         dateCheckTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(DailyTasks.getInstance(), (Runnable) () -> { // Check date every second to randomize tasks
-            String now = DateManager.getFormattedDate("%Y/%M/%D"); // Set now as date
+            String now = dateManager.getFormattedDate("%Y/%M/%D"); // Set now as date
             if(!lastRandomizedDate.equals(now)) { // If date is not last randomized date
                 taskManager.RandomizeTasks(3); // Randomize 3 new tasks
-                if(DateManager.getFormattedDate("%D").equals("1")
+                if(dateManager.getFormattedDate("%D").equals("1")
                         || taskManager.getThisMonthReward() == null) {
                     taskManager.RandomizeMonthReward();
                 }

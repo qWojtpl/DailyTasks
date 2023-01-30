@@ -56,8 +56,9 @@ public class DataHandler {
         if(section == null) return;
         for(String date : section.getKeys(false)) { // Loop through section keys (dates, eg. '2023/1/18')
             String[] dateArray = date.split("/");
-            if(!DateManager.isUsingFakeCalendar() && deleteOldData) {
-                if(Integer.parseInt(dateArray[0]) <= DateManager.getYear() && Integer.parseInt(dateArray[1]) < DateManager.getMonth()) {
+            DateManager dm = DailyTasks.getInstance().getDateManager();
+            if(!dm.isUsingFakeCalendar() && deleteOldData) {
+                if(Integer.parseInt(dateArray[0]) <= dm.getYear() && Integer.parseInt(dateArray[1]) < dm.getMonth()) {
                     yml.set("saved." + date, null);
                     continue;
                 }
@@ -97,7 +98,8 @@ public class DataHandler {
     public static void addPlayerCompletedTask(PlayerTasks pt, int index) {
         File playerFile = createPlayerFile(pt.getPlayer());
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(playerFile);
-        yml.set("saved." + DateManager.getFormattedDate("%Y/%M/%D") + "." + index + ".c", 1);
+        DateManager dm = DailyTasks.getInstance().getDateManager();
+        yml.set("saved." + dm.getFormattedDate("%Y/%M/%D") + "." + index + ".c", 1);
         try {
             yml.save(playerFile);
         } catch(IOException e) {
@@ -121,7 +123,8 @@ public class DataHandler {
     public static void updatePlayerProgress(PlayerTasks pt, int index) {
         File playerFile = createPlayerFile(pt.getPlayer());
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(playerFile);
-        yml.set("saved." + DateManager.getFormattedDate("%Y/%M/%D") + "." + index + ".p", pt.getProgress().get(index));
+        DateManager dm = DailyTasks.getInstance().getDateManager();
+        yml.set("saved." + dm.getFormattedDate("%Y/%M/%D") + "." + index + ".p", pt.getProgress().get(index));
         try {
             yml.save(playerFile);
         } catch(IOException e) {
@@ -143,16 +146,18 @@ public class DataHandler {
             for(int i = 0; i < i_args.length; i++) {
                 i_args[i] = Integer.parseInt(args[i]);
             }
-            DateManager.createFakeCalendar(i_args[0], i_args[1]-1, i_args[2], i_args[3], i_args[4], i_args[5]);
+            DateManager dm = DailyTasks.getInstance().getDateManager();
+            dm.createFakeCalendar(i_args[0], i_args[1]-1, i_args[2], i_args[3], i_args[4], i_args[5]);
         }
     }
 
     public static void saveCalendar() {
         File pluginDataFile = createPluginData();
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(pluginDataFile);
-        if(DateManager.isUsingFakeCalendar()) {
-            yml.set("data.fakeCalendar", DateManager.getYear() + " " + DateManager.getMonth()
-                    + " " + DateManager.getDay() + " " + DateManager.getHour() + " " + DateManager.getMinute() + " " + DateManager.getSecond());
+        DateManager dm = DailyTasks.getInstance().getDateManager();
+        if(dm.isUsingFakeCalendar()) {
+            yml.set("data.fakeCalendar", dm.getYear() + " " + dm.getMonth()
+                    + " " + dm.getDay() + " " + dm.getHour() + " " + dm.getMinute() + " " + dm.getSecond());
         } else {
             yml.set("data.fakeCalendar", null);
         }
@@ -191,8 +196,9 @@ public class DataHandler {
         if(section != null) {
             for(String key : section.getKeys(false)) {
                 String[] dateArray = key.split("/");
-                if(!DateManager.isUsingFakeCalendar() && deleteOldData) {
-                    if(Integer.parseInt(dateArray[0]) <= DateManager.getYear() && Integer.parseInt(dateArray[1]) < DateManager.getMonth()) {
+                DateManager dm = DailyTasks.getInstance().getDateManager();
+                if(!dm.isUsingFakeCalendar() && deleteOldData) {
+                    if(Integer.parseInt(dateArray[0]) <= dm.getYear() && Integer.parseInt(dateArray[1]) < dm.getMonth()) {
                         yml.set("history." + key, null);
                         continue;
                     }
@@ -241,7 +247,8 @@ public class DataHandler {
         for(TaskObject to : DailyTasks.getInstance().getTaskManager().getTodayTasks()) {
             tasks.add(to.initializedEvent);
         }
-        yml.set("history." + DateManager.getFormattedDate("%Y/%M/%D"), tasks);
+        DateManager dm = DailyTasks.getInstance().getDateManager();
+        yml.set("history." + dm.getFormattedDate("%Y/%M/%D"), tasks);
         try {
             yml.save(pluginDataFile);
         } catch(IOException e) {
@@ -253,7 +260,8 @@ public class DataHandler {
     public static void saveTodayReward() {
         File pluginDataFile = createPluginData();
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(pluginDataFile);
-        yml.set("day-reward-history." + DateManager.getFormattedDate("%Y/%M/%D"),
+        DateManager dm = DailyTasks.getInstance().getDateManager();
+        yml.set("day-reward-history." + dm.getFormattedDate("%Y/%M/%D"),
                 DailyTasks.getInstance().getTaskManager().getTodayReward().initializedCommand);
         try {
             yml.save(pluginDataFile);
@@ -266,7 +274,8 @@ public class DataHandler {
     public static void saveMonthlyReward() {
         File pluginDataFile = createPluginData();
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(pluginDataFile);
-        yml.set("month-reward-history." + DateManager.getFormattedDate("%Y/%M"),
+        DateManager dm = DailyTasks.getInstance().getDateManager();
+        yml.set("month-reward-history." + dm.getFormattedDate("%Y/%M"),
                 DailyTasks.getInstance().getTaskManager().getThisMonthReward().initializedCommand);
         try {
             yml.save(pluginDataFile);

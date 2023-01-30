@@ -55,8 +55,9 @@ public class GUIHandler {
             AddItem(i, Material.BLACK_STAINED_GLASS_PANE, 1, " ", " ", false);
         }
         int day = 1;
-        int maxDays = DateManager.getDaysOfMonth();
-        int currentDay = DateManager.getDay();
+        DateManager dm = DailyTasks.getInstance().getDateManager();
+        int maxDays = dm.getDaysOfMonth();
+        int currentDay = dm.getDay();
         for(int i = 1; i <= 43; i++) {
             if(i == 8 || i == 9 || i == 17 || i == 18 || i == 26 || i == 27 || i == 35 || i == 36) continue;
             if(day > maxDays) {

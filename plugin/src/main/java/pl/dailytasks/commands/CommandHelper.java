@@ -20,6 +20,7 @@ public class CommandHelper implements TabCompleter {
             return null;
         }
         List<String> completions = new ArrayList<>();
+        DateManager dm = DailyTasks.getInstance().getDateManager();
         if(args.length > 1) {
             if(args[0].equalsIgnoreCase("help")) {
                 if(args.length == 2) {
@@ -30,25 +31,25 @@ public class CommandHelper implements TabCompleter {
                 }
             } else if(args[0].equalsIgnoreCase("fakecalendar")) {
                 if(args.length == 2) {
-                    completions.add(String.valueOf(DateManager.getYear()));
+                    completions.add(String.valueOf(dm.getYear()));
                 } else if(args.length == 3) {
-                    completions.add(String.valueOf(DateManager.getMonth()));
+                    completions.add(String.valueOf(dm.getMonth()));
                 } else if(args.length == 4) {
-                    completions.add(String.valueOf(DateManager.getDay()));
+                    completions.add(String.valueOf(dm.getDay()));
                 } else if(args.length == 5) {
-                    completions.add(String.valueOf(DateManager.getHour()));
+                    completions.add(String.valueOf(dm.getHour()));
                 } else if(args.length == 6) {
-                    completions.add(String.valueOf(DateManager.getMinute()));
+                    completions.add(String.valueOf(dm.getMinute()));
                 } else if(args.length == 7) {
-                    completions.add(String.valueOf(DateManager.getSecond()));
+                    completions.add(String.valueOf(dm.getSecond()));
                 }
             } else if(args[0].equalsIgnoreCase("autocomplete") || args[0].equalsIgnoreCase("checkauto")) {
                 if(args.length == 2) {
-                    completions.add(String.valueOf(DateManager.getYear()));
+                    completions.add(String.valueOf(dm.getYear()));
                 } else if(args.length == 3) {
-                    completions.add(String.valueOf(DateManager.getMonth()));
+                    completions.add(String.valueOf(dm.getMonth()));
                 } else if(args.length == 4) {
-                    completions.add(String.valueOf(DateManager.getDay()));
+                    completions.add(String.valueOf(dm.getDay()));
                 }
             } else if(args[0].equalsIgnoreCase("complete")) {
                 if(args.length == 2) {
@@ -62,11 +63,11 @@ public class CommandHelper implements TabCompleter {
                 } else if(args.length >= 4) {
                     if(args[1].equalsIgnoreCase("date")) {
                         if(args.length == 4) {
-                            completions.add(String.valueOf(DateManager.getYear()));
+                            completions.add(String.valueOf(dm.getYear()));
                         } else if(args.length == 5) {
-                            completions.add(String.valueOf(DateManager.getMonth()));
+                            completions.add(String.valueOf(dm.getMonth()));
                         } else if(args.length == 6) {
-                            completions.add(String.valueOf(DateManager.getDay()));
+                            completions.add(String.valueOf(dm.getDay()));
                         }
                     } else if(args[1].equalsIgnoreCase("progress")) {
                         if(args.length == 4) {
@@ -86,29 +87,29 @@ public class CommandHelper implements TabCompleter {
                     }
                 } else if(args.length == 4) {
                     if(args[1].equalsIgnoreCase("day")) {
-                        completions.add(String.valueOf(DateManager.getDay()));
+                        completions.add(String.valueOf(dm.getDay()));
                     }
                 }
                 if(args.length >= 4) {
                     if(args[1].equalsIgnoreCase("date")) {
                         if(args.length == 4) {
-                            completions.add(String.valueOf(DateManager.getYear()));
+                            completions.add(String.valueOf(dm.getYear()));
                         } else if(args.length == 5) {
-                            completions.add(String.valueOf(DateManager.getMonth()));
+                            completions.add(String.valueOf(dm.getMonth()));
                         } else if(args.length == 6) {
-                            completions.add(String.valueOf(DateManager.getDay()));
+                            completions.add(String.valueOf(dm.getDay()));
                         }
                     }
                 }
             } else if(args[0].equalsIgnoreCase("checktasks") || args[0].equalsIgnoreCase("checkrewards")) {
                 if(args.length == 2) {
-                    completions.add(String.valueOf(DateManager.getYear()));
+                    completions.add(String.valueOf(dm.getYear()));
                 }
                 if(args.length == 3) {
-                    completions.add(String.valueOf(DateManager.getMonth()));
+                    completions.add(String.valueOf(dm.getMonth()));
                 }
                 if(args.length == 4) {
-                    completions.add(String.valueOf(DateManager.getDay()));
+                    completions.add(String.valueOf(dm.getDay()));
                 }
             } else if(args[0].equalsIgnoreCase("reserve")) {
                 if(args.length == 2) {
@@ -121,23 +122,23 @@ public class CommandHelper implements TabCompleter {
                         completions.add("month");
                     }
                     if(args.length == 4) {
-                        completions.add(String.valueOf(DateManager.getYear()));
+                        completions.add(String.valueOf(dm.getYear()));
                     }
                     if(args.length == 5) {
-                        completions.add(String.valueOf(DateManager.getMonth()));
+                        completions.add(String.valueOf(dm.getMonth()));
                     }
                     if(args.length == 6) {
-                        completions.add(String.valueOf(DateManager.getDay()));
+                        completions.add(String.valueOf(dm.getDay()));
                     }
                 } else {
                     if(args.length == 3) {
-                        completions.add(String.valueOf(DateManager.getYear()));
+                        completions.add(String.valueOf(dm.getYear()));
                     }
                     if(args.length == 4) {
-                        completions.add(String.valueOf(DateManager.getMonth()));
+                        completions.add(String.valueOf(dm.getMonth()));
                     }
                     if(args.length == 5) {
-                        completions.add(String.valueOf(DateManager.getDay()));
+                        completions.add(String.valueOf(dm.getDay()));
                     }
                 }
             } else if(args[0].equalsIgnoreCase("add")) {

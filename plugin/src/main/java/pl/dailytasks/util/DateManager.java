@@ -9,38 +9,38 @@ import static java.util.Calendar.*;
 
 public class DateManager {
 
-    public static Calendar fakeCalendar = null;
-    public static int fakeCalendarTask;
+    public Calendar fakeCalendar = null;
+    public int fakeCalendarTask;
 
-    public static int getDaysOfMonth() {
+    public int getDaysOfMonth() {
         return getCalendar().getActualMaximum(Calendar.DAY_OF_MONTH);
     }
 
-    public static int getYear() {
+    public int getYear() {
         return getCalendar().get(YEAR);
     }
 
-    public static int getMonth() {
+    public int getMonth() {
         return getCalendar().get(Calendar.MONTH)+1;
     }
 
-    public static int getDay() {
+    public int getDay() {
         return getCalendar().get(Calendar.DAY_OF_MONTH);
     }
 
-    public static int getHour() {
+    public int getHour() {
         return getCalendar().get(Calendar.HOUR_OF_DAY);
     }
 
-    public static int getMinute() {
+    public int getMinute() {
         return getCalendar().get(Calendar.MINUTE);
     }
 
-    public static int getSecond() {
+    public int getSecond() {
         return getCalendar().get(Calendar.SECOND);
     }
 
-    public static String getFormattedDate(String format) {
+    public String getFormattedDate(String format) {
         format = format.replace("%Y", String.valueOf(getYear()));
         format = format.replace("%M", String.valueOf(getMonth()));
         format = format.replace("%D", String.valueOf(getDay()));
@@ -50,7 +50,7 @@ public class DateManager {
         return format;
     }
 
-    public static Calendar getCalendar() {
+    public Calendar getCalendar() {
         Calendar cal;
         if(fakeCalendar != null) {
             cal = fakeCalendar;
@@ -60,7 +60,7 @@ public class DateManager {
         return cal;
     }
 
-    public static void createFakeCalendar(int year, int month, int day, int hour, int minute, int second) {
+    public void createFakeCalendar(int year, int month, int day, int hour, int minute, int second) {
         removeFakeCalendar();
         fakeCalendar = Calendar.getInstance();
         fakeCalendar.set(YEAR, year);
@@ -74,13 +74,13 @@ public class DateManager {
         DataHandler.saveCalendar();
     }
 
-    public static void removeFakeCalendar() {
+    public void removeFakeCalendar() {
         fakeCalendar = null;
         Bukkit.getScheduler().cancelTask(fakeCalendarTask);
         DataHandler.saveCalendar();
     }
 
-    public static boolean isUsingFakeCalendar() {
+    public boolean isUsingFakeCalendar() {
         return (fakeCalendar != null);
     }
 

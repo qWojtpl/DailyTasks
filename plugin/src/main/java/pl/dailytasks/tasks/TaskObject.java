@@ -1,5 +1,6 @@
 package pl.dailytasks.tasks;
 
+import pl.dailytasks.DailyTasks;
 import pl.dailytasks.data.DataHandler;
 import pl.dailytasks.util.DateManager;
 import pl.dailytasks.util.RandomNumber;
@@ -26,7 +27,8 @@ public class TaskObject {
     }
 
     public void Complete(PlayerTasks pt, int index) {
-        pt.getCompletedTasks(Integer.parseInt(DateManager.getFormattedDate("%D"))).add(index);
+        DateManager dm = DailyTasks.getInstance().getDateManager();
+        pt.getCompletedTasks(Integer.parseInt(dm.getFormattedDate("%D"))).add(index);
         DataHandler.addPlayerCompletedTask(pt, index);
     }
 
