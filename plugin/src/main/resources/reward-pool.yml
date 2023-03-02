@@ -1,0 +1,13 @@
+day-rewards:
+  "0":
+    enabled: true
+    command: "give %player% minecraft:emerald %rdm%"
+    numberMin: 10
+    numberMax: 15
+
+month-rewards:
+  "0":
+    enabled: true
+    command: "give %player% minecraft:diamond_block %rdm%"
+    numberMin: 10
+    numberMax: 32

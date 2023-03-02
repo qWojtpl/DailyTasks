@@ -1,0 +1,6 @@
+tasks:
+  "0":
+    enabled: true
+    event: "kill %rdm% villager"
+    numberMin: 1
+    numberMax: 10

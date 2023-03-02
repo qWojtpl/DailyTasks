@@ -30,7 +30,7 @@ public class PermissionManager {
         if(permission == null) return true;
         if(!(sender instanceof Player)) return true;
         if(!sender.hasPermission(permission)) {
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §cYou don't have permission!");
+            sender.sendMessage(DailyTasks.getInstance().getMessages().getMessage("prefix") + " §cYou don't have permission!");
             return false;
         }
         return true;

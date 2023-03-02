@@ -14,6 +14,7 @@ import pl.dailytasks.tasks.PlayerTasks;
 import pl.dailytasks.tasks.TaskManager;
 import pl.dailytasks.tasks.TaskObject;
 import pl.dailytasks.util.DateManager;
+import pl.dailytasks.util.Messages;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,7 +51,8 @@ public class GUIHandler {
     }
 
     public void Create() {
-        inventory = Bukkit.createInventory(null, 54, DailyTasks.getMessage("title"));
+        Messages messages = DailyTasks.getInstance().getMessages();
+        inventory = Bukkit.createInventory(null, 54, messages.getMessage("title"));
         for(int i = 0; i < 54; i++) {
             AddItem(i, Material.BLACK_STAINED_GLASS_PANE, 1, " ", " ", false);
         }
@@ -70,10 +72,10 @@ public class GUIHandler {
             if(day <= currentDay) {
                 TaskManager tm = DailyTasks.getInstance().getTaskManager();
                 if(tm.getTasks(day).size() != 0) {
-                    task = DailyTasks.getMessage("tasks") + "%nl%";
+                    task = messages.getMessage("tasks") + "%nl%";
                     int j = 0;
                     if(tm.getTasks(day).size() == 0) {
-                        task = task + "§c" + DailyTasks.getMessage("day-without-task");
+                        task = task + "§c" + messages.getMessage("day-without-task");
                     } else {
                         for (TaskObject to : tm.getTasks(day)) {
                             int playerProgress = pt.getProgressByDay(day).get(j);
@@ -89,18 +91,19 @@ public class GUIHandler {
                 }
                 if (pt.checkIfCompletedDay(day)) {
                     m = Material.GREEN_CONCRETE;
-                    task = task + DailyTasks.getMessage("completed");
+                    task = task + messages.getMessage("completed");
                 } else if(day != currentDay) {
                     m = Material.RED_CONCRETE;
-                    task = task + DailyTasks.getMessage("not-completed");
+                    task = task + messages.getMessage("not-completed");
                 }
             } else {
-                task = DailyTasks.getMessage("locked-task");
+                task = messages.getMessage("locked-task");
             }
-            AddItem(i, m, day, DailyTasks.getMessage("day") + day, task, (day == currentDay));
+            AddItem(i, m, day, messages.getMessage("day") + day, task, (day == currentDay));
             day++;
         }
-        AddItem(49, Material.BOOKSHELF, 1, DailyTasks.getMessage("info-title"), DailyTasks.getMessage("info-description"), false);
+        AddItem(49, Material.BOOKSHELF, 1,
+                messages.getMessage("info-title"), messages.getMessage("info-description"), false);
 
     }
 

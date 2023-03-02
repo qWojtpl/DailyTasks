@@ -1,9 +1,7 @@
 package pl.dailytasks.tasks;
 
-import lombok.Getter;
 import org.bukkit.entity.Player;
 import pl.dailytasks.DailyTasks;
-import pl.dailytasks.data.DataHandler;
 import pl.dailytasks.util.DateManager;
 
 import java.util.ArrayList;
@@ -18,14 +16,15 @@ public class PlayerTasks {
 
     public PlayerTasks(Player p) {
         this.player = p;
-        DailyTasks.playerTaskList.put(p, this);
-        DataHandler.loadPlayer(p);
+        DailyTasks.getInstance().getPlayerTaskList().put(p, this);
+        DailyTasks.getInstance().getDataHandler().loadPlayer(p);
     }
 
     public static PlayerTasks Create(Player p) {
-        if(DailyTasks.playerTaskList.containsKey(p)) {
-            DailyTasks.playerTaskList.get(p).player = p;
-            return DailyTasks.playerTaskList.get(p);
+        HashMap<Player, PlayerTasks> playerTaskList = DailyTasks.getInstance().getPlayerTaskList();
+        if(playerTaskList.containsKey(p)) {
+            playerTaskList.get(p).player = p;
+            return playerTaskList.get(p);
         }
         return new PlayerTasks(p);
     }

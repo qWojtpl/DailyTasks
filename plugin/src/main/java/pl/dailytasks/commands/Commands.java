@@ -12,12 +12,17 @@ import pl.dailytasks.tasks.TaskManager;
 import pl.dailytasks.tasks.TaskObject;
 import pl.dailytasks.util.DateManager;
 import pl.dailytasks.gui.GUIHandler;
+import pl.dailytasks.util.Messages;
 import pl.dailytasks.util.PlayerUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Commands implements CommandExecutor {
+
+    private final Messages messages = DailyTasks.getInstance().getMessages();
+    private final PlayerUtil pu = DailyTasks.getInstance().getPlayerUtil();
+    private final DataHandler dh = DailyTasks.getInstance().getDataHandler();
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -76,7 +81,7 @@ public class Commands implements CommandExecutor {
         try {
             page = Integer.parseInt(args[1]);
         } catch(NumberFormatException e) {
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt help <page>");
+            sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt help <page>");
         } finally {
             ShowHelp(sender, page);
         }
@@ -85,13 +90,13 @@ public class Commands implements CommandExecutor {
     private void c_Reload(CommandSender sender) {
         if(!DailyTasks.getInstance().getPermissionManager().checkSenderPermission(sender, DailyTasks.getInstance().getPermissionManager().getPermission("dt.reload"))) return;
         DailyTasks.getInstance().Reload();
-        sender.sendMessage(DailyTasks.getMessage("prefix") + " §aReloaded configuration!");
+        sender.sendMessage(messages.getMessage("prefix") + " §aReloaded configuration!");
     }
 
     private void c_FakeCalendar(CommandSender sender, String[] args) {
         if(!DailyTasks.getInstance().getPermissionManager().checkSenderPermission(sender, DailyTasks.getInstance().getPermissionManager().getPermission("dt.fakecalendar"))) return;
         if(args.length < 7) {
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt fakecalendar <year> <month> <day> <hour> <minute> <second>");
+            sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt fakecalendar <year> <month> <day> <hour> <minute> <second>");
             return;
         }
         int[] i_args = new int[6];
@@ -100,7 +105,7 @@ public class Commands implements CommandExecutor {
         }
         DateManager dm = DailyTasks.getInstance().getDateManager();
         dm.createFakeCalendar(i_args[0], i_args[1]-1, i_args[2], i_args[3], i_args[4], i_args[5]);
-        sender.sendMessage(DailyTasks.getMessage("prefix") + " §aNow using fake calendar. Use /dt removefake to remove fake calendar.");
+        sender.sendMessage(messages.getMessage("prefix") + " §aNow using fake calendar. Use /dt removefake to remove fake calendar.");
     }
 
     private void c_RemoveFakeCalendar(CommandSender sender) {
@@ -108,39 +113,39 @@ public class Commands implements CommandExecutor {
         DateManager dm = DailyTasks.getInstance().getDateManager();
         if(dm.isUsingFakeCalendar()) {
             dm.removeFakeCalendar();
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §aNow using real calendar!");
+            sender.sendMessage(messages.getMessage("prefix") + " §aNow using real calendar!");
         } else {
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §cYou're not using fake calendar!");
+            sender.sendMessage(messages.getMessage("prefix") + " §cYou're not using fake calendar!");
         }
     }
 
     private void c_AutoComplete(CommandSender sender, String[] args) {
         if(!DailyTasks.getInstance().getPermissionManager().checkSenderPermission(sender, DailyTasks.getInstance().getPermissionManager().getPermission("dt.setautocomplete"))) return;
         if(args.length < 4) {
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt autocomplete <Y> <M> <D>");
+            sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt autocomplete <Y> <M> <D>");
             return;
         }
         String date = args[1] + "/" + args[2] + "/" + args[3];
-        if(DataHandler.getAutoCompleteDates().contains(date)) {
-            DataHandler.markDateAutoComplete(date, false);
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §aMarked " + date + " as §4§lNOT AUTO-COMPLETE");
+        if(dh.getAutoCompleteDates().contains(date)) {
+            dh.markDateAutoComplete(date, false);
+            sender.sendMessage(messages.getMessage("prefix") + " §aMarked " + date + " as §4§lNOT AUTO-COMPLETE");
         } else {
-            DataHandler.markDateAutoComplete(date, true);
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §aMarked " + date + " as §a§lAUTO-COMPLETE");
+            dh.markDateAutoComplete(date, true);
+            sender.sendMessage(messages.getMessage("prefix") + " §aMarked " + date + " as §a§lAUTO-COMPLETE");
         }
     }
 
     private void c_CheckAuto(CommandSender sender, String[] args) {
         if(!DailyTasks.getInstance().getPermissionManager().checkSenderPermission(sender, DailyTasks.getInstance().getPermissionManager().getPermission("dt.checkauto"))) return;
         if(args.length < 4) {
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt checkauto <Y> <M> <D>");
+            sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt checkauto <Y> <M> <D>");
             return;
         }
         String date = args[1] + "/" + args[2] + "/" + args[3];
-        if(DataHandler.getAutoCompleteDates().contains(date)) {
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §aDate " + date + " is marked as §a§lAUTO-COMPLETE");
+        if(dh.getAutoCompleteDates().contains(date)) {
+            sender.sendMessage(messages.getMessage("prefix") + " §aDate " + date + " is marked as §a§lAUTO-COMPLETE");
         } else {
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §aDate " + date + " is marked as §4§lNOT AUTO-COMPLETE");
+            sender.sendMessage(messages.getMessage("prefix") + " §aDate " + date + " is marked as §4§lNOT AUTO-COMPLETE");
         }
     }
 
@@ -152,12 +157,12 @@ public class Commands implements CommandExecutor {
         if(args[1].equalsIgnoreCase("day")) {
             if(!DailyTasks.getInstance().getPermissionManager().checkSenderPermission(sender, DailyTasks.getInstance().getPermissionManager().getPermission("dt.complete.day"))) return;
             if(args.length < 3) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt complete day <nick>");
+                sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt complete day <nick>");
                 return;
             }
-            Player p = PlayerUtil.getPlayerByNick(args[2]);
+            Player p = pu.getPlayerByNick(args[2]);
             if(p == null) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCannot find this player!");
+                sender.sendMessage(messages.getMessage("prefix") + " §cCannot find this player!");
                 return;
             }
             PlayerTasks pt = PlayerTasks.Create(p);
@@ -165,21 +170,21 @@ public class Commands implements CommandExecutor {
             TaskManager tm = DailyTasks.getInstance().getTaskManager();
             for(TaskObject to : tm.getTodayTasks()) {
                 pt.getProgress().set(i, to.currentRandom); // Set progress to max
-                DataHandler.updatePlayerProgress(pt, i); // Save progress
+                dh.updatePlayerProgress(pt, i); // Save progress
                 to.Complete(pt, i); // Complete task
                 i++;
             }
             tm.CheckRewards(pt); // Check rewards
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §aAdded this day as completed day for " + p.getName() + "!");
+            sender.sendMessage(messages.getMessage("prefix") + " §aAdded this day as completed day for " + p.getName() + "!");
         } else if(args[1].equalsIgnoreCase("date")) {
             if(!DailyTasks.getInstance().getPermissionManager().checkSenderPermission(sender, DailyTasks.getInstance().getPermissionManager().getPermission("dt.complete.date"))) return;
             if(args.length < 6) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt complete date <nick> <Y> <M> <D>");
+                sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt complete date <nick> <Y> <M> <D>");
                 return;
             }
-            Player p = PlayerUtil.getPlayerByNick(args[2]);
+            Player p = pu.getPlayerByNick(args[2]);
             if(p == null) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCannot find this player!");
+                sender.sendMessage(messages.getMessage("prefix") + " §cCannot find this player!");
                 return;
             }
             PlayerTasks pt = PlayerTasks.Create(p);
@@ -187,19 +192,19 @@ public class Commands implements CommandExecutor {
             List<Integer> threeTasks = new ArrayList<>();
             for(int i = 0; i < 3; i++) {
                 threeTasks.add(i);
-                DataHandler.addPlayerCompletedTaskByDate(pt, i, date);
+                dh.addPlayerCompletedTaskByDate(pt, i, date);
             }
             pt.getSourceCompletedTasks().put(date, threeTasks);
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §aAdded " + date + " as completed date for " + p.getName() + "!");
+            sender.sendMessage(messages.getMessage("prefix") + " §aAdded " + date + " as completed date for " + p.getName() + "!");
         } else if(args[1].equalsIgnoreCase("progress")) {
             if(!DailyTasks.getInstance().getPermissionManager().checkSenderPermission(sender, DailyTasks.getInstance().getPermissionManager().getPermission("dt.complete.progress"))) return;
             if(args.length < 4) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt complete progress <nick> <index>");
+                sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt complete progress <nick> <index>");
                 return;
             }
-            Player p = PlayerUtil.getPlayerByNick(args[2]);
+            Player p = pu.getPlayerByNick(args[2]);
             if(p == null) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCannot find this player!");
+                sender.sendMessage(messages.getMessage("prefix") + " §cCannot find this player!");
                 return;
             }
             PlayerTasks pt = PlayerTasks.Create(p);
@@ -207,16 +212,16 @@ public class Commands implements CommandExecutor {
             try {
                 index = Integer.parseInt(args[3]);
             } catch(NumberFormatException e) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt complete progress <nick> <index>");
+                sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt complete progress <nick> <index>");
                 return;
             }
             TaskManager tm = DailyTasks.getInstance().getTaskManager();
             TaskObject task = tm.getTodayTasks().get(index); // Get task from index
             pt.getProgress().set(index, task.currentRandom); // Set progress to max
-            DataHandler.updatePlayerProgress(pt, index); // Save progress
+            dh.updatePlayerProgress(pt, index); // Save progress
             task.Complete(pt, index); // Complete task and save it
             tm.CheckRewards(pt); // Check rewards
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §aMarked progress " + index + " of this day as completed for " + p.getName() + "!");
+            sender.sendMessage(messages.getMessage("prefix") + " §aMarked progress " + index + " of this day as completed for " + p.getName() + "!");
         }
     }
 
@@ -228,12 +233,12 @@ public class Commands implements CommandExecutor {
         if(args[1].equalsIgnoreCase("day")) {
             if(!DailyTasks.getInstance().getPermissionManager().checkSenderPermission(sender, DailyTasks.getInstance().getPermissionManager().getPermission("dt.checkcomplete.day"))) return;
             if(args.length < 4) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt checkcompleted day <nick> <D>");
+                sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt checkcompleted day <nick> <D>");
                 return;
             }
-            Player p = PlayerUtil.getPlayerByNick(args[2]);
+            Player p = pu.getPlayerByNick(args[2]);
             if(p == null) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCannot find this player!");
+                sender.sendMessage(messages.getMessage("prefix") + " §cCannot find this player!");
                 return;
             }
             PlayerTasks pt = PlayerTasks.Create(p);
@@ -241,34 +246,34 @@ public class Commands implements CommandExecutor {
             try {
                 day = Integer.parseInt(args[3]);
             } catch(NumberFormatException e) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt checkcompleted day <nick> <D>");
+                sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt checkcompleted day <nick> <D>");
                 return;
             }
             if(pt.checkIfCompletedDay(day)) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §a" + p.getName() + " completed " + day + " day's tasks!");
+                sender.sendMessage(messages.getMessage("prefix") + " §a" + p.getName() + " completed " + day + " day's tasks!");
             } else {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §c" + p.getName() + " doesn't completed " + day + " day's tasks!");
+                sender.sendMessage(messages.getMessage("prefix") + " §c" + p.getName() + " doesn't completed " + day + " day's tasks!");
             }
         } else if(args[1].equalsIgnoreCase("date")) {
             if(!DailyTasks.getInstance().getPermissionManager().checkSenderPermission(sender, DailyTasks.getInstance().getPermissionManager().getPermission("dt.checkcomplete.date"))) return;
             if(args.length < 6) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt checkcompleted date <nick> <Y> <M> <D>");
+                sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt checkcompleted date <nick> <Y> <M> <D>");
                 return;
             }
-            Player p = PlayerUtil.getPlayerByNick(args[2]);
+            Player p = pu.getPlayerByNick(args[2]);
             if(p == null) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCannot find this player!");
+                sender.sendMessage(messages.getMessage("prefix") + " §cCannot find this player!");
                 return;
             }
             PlayerTasks pt = PlayerTasks.Create(p);
             String formatDate = args[3] + "/" + args[4] + "/" + args[5];
             if(pt.checkIfCompletedDayByDate(formatDate)) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §a" + p.getName() + " completed " + formatDate + "'s tasks!");
+                sender.sendMessage(messages.getMessage("prefix") + " §a" + p.getName() + " completed " + formatDate + "'s tasks!");
             } else {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §c" + p.getName() + " doesn't completed " + formatDate + "'s tasks!");
+                sender.sendMessage(messages.getMessage("prefix") + " §c" + p.getName() + " doesn't completed " + formatDate + "'s tasks!");
             }
             if(DataHandler.deleteOldData) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cATTENTION! Delete old data is turned on, " +
+                sender.sendMessage(messages.getMessage("prefix") + " §cATTENTION! Delete old data is turned on, " +
                         "so you can't see old player's tasks");
             }
         } else {
@@ -279,7 +284,7 @@ public class Commands implements CommandExecutor {
     public void c_CheckTasks(CommandSender sender, String[] args) {
         if(!DailyTasks.getInstance().getPermissionManager().checkSenderPermission(sender, DailyTasks.getInstance().getPermissionManager().getPermission("dt.checktasks"))) return;
         if(args.length < 4) {
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt checktasks <Y> <M> <D>");
+            sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt checktasks <Y> <M> <D>");
             return;
         }
         String date = args[1] + "/" + args[2] + "/" + args[3];
@@ -296,9 +301,9 @@ public class Commands implements CommandExecutor {
                 return;
             }
         }
-        sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCannot find tasks for this date..");
+        sender.sendMessage(messages.getMessage("prefix") + " §cCannot find tasks for this date..");
         if(DataHandler.deleteOldData) {
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §cATTENTION! Delete old data is turned on, " +
+            sender.sendMessage(messages.getMessage("prefix") + " §cATTENTION! Delete old data is turned on, " +
                     "so you can't see old tasks");
         }
     }
@@ -306,7 +311,7 @@ public class Commands implements CommandExecutor {
     public void c_CheckRewards(CommandSender sender, String[] args) {
         if(!DailyTasks.getInstance().getPermissionManager().checkSenderPermission(sender, DailyTasks.getInstance().getPermissionManager().getPermission("dt.checkrewards"))) return;
         if(args.length < 4) {
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt checkrewards <Y> <M> <D>");
+            sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt checkrewards <Y> <M> <D>");
             return;
         }
         String date = args[1] + "/" + args[2] + "/" + args[3];
@@ -329,7 +334,7 @@ public class Commands implements CommandExecutor {
         }
         sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
         if(DataHandler.deleteOldData) {
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §cATTENTION! Delete old data is turned on, " +
+            sender.sendMessage(messages.getMessage("prefix") + " §cATTENTION! Delete old data is turned on, " +
                     "so you can't see old rewards");
         }
     }
@@ -338,7 +343,7 @@ public class Commands implements CommandExecutor {
         if(!DailyTasks.getInstance().getPermissionManager().checkSenderPermission(sender, DailyTasks.getInstance().getPermissionManager().getPermission("dt.taskpool"))) return;
         sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
         sender.sendMessage("§eShowing task pool:");
-        for(TaskObject to : DailyTasks.TaskPool) {
+        for(TaskObject to : DailyTasks.getInstance().getTaskManager().getTaskPool()) {
             sender.sendMessage("§6->§e " + to.event);
             sender.sendMessage("§6    => §eMin: §a" + to.min + "§e, max: §a" + to.max);
         }
@@ -349,7 +354,7 @@ public class Commands implements CommandExecutor {
         if(!DailyTasks.getInstance().getPermissionManager().checkSenderPermission(sender, DailyTasks.getInstance().getPermissionManager().getPermission("dt.rewardpool"))) return;
         sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
         sender.sendMessage("§eShowing reward pool:");
-        for(RewardObject ro : DailyTasks.RewardPool) {
+        for(RewardObject ro : DailyTasks.getInstance().getTaskManager().getRewardPool()) {
             String info = "§aDAILY";
             if(ro.isMonthly) {
                 info = "§2MONTHLY";
@@ -372,7 +377,7 @@ public class Commands implements CommandExecutor {
         if(args[1].equalsIgnoreCase("task")) {
             if(!DailyTasks.getInstance().getPermissionManager().checkSenderPermission(sender, DailyTasks.getInstance().getPermissionManager().getPermission("dt.add.task"))) return;
             if(args.length < 6) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt add task <id> <min> <max> <task>");
+                sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt add task <id> <min> <max> <task>");
                 return;
             }
             int min, max;
@@ -380,7 +385,7 @@ public class Commands implements CommandExecutor {
                 min = Integer.parseInt(args[3]);
                 max = Integer.parseInt(args[4]);
             } catch(NumberFormatException e) {
-                sender.sendMessage(DailyTasks.getMessage("prefix") + " §cCorrect usage: /dt add task <id> <min> <max> <task>");
+                sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt add task <id> <min> <max> <task>");
                 return;
             }
             String event = "";
@@ -391,9 +396,9 @@ public class Commands implements CommandExecutor {
                 }
             }
             TaskObject to = new TaskObject(event, min, max);
-            DailyTasks.TaskPool.add(to);
-            DataHandler.addTaskToPool(to, args[2]);
-            sender.sendMessage(DailyTasks.getMessage("prefix") + " §aAdded " + args[2] + " §ato task pool! If this task existed - overwritten.");
+            DailyTasks.getInstance().getTaskManager().getTaskPool().add(to);
+            dh.addTaskToPool(to, args[2]);
+            sender.sendMessage(messages.getMessage("prefix") + " §aAdded " + args[2] + " §ato task pool! If this task existed - overwritten.");
         } else if(args[1].equalsIgnoreCase("reward")) {
 
         }

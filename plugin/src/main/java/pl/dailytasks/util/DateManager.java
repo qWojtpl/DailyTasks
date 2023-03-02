@@ -2,7 +2,6 @@ package pl.dailytasks.util;
 
 import org.bukkit.Bukkit;
 import pl.dailytasks.DailyTasks;
-import pl.dailytasks.data.DataHandler;
 
 import java.util.Calendar;
 import static java.util.Calendar.*;
@@ -71,13 +70,13 @@ public class DateManager {
         fakeCalendar.set(SECOND, second);
         fakeCalendarTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(DailyTasks.getInstance(), () ->
                 fakeCalendar.set(SECOND, fakeCalendar.get(SECOND) + 1), 0L, 20L);
-        DataHandler.saveCalendar();
+        DailyTasks.getInstance().getDataHandler().saveCalendar();
     }
 
     public void removeFakeCalendar() {
         fakeCalendar = null;
         Bukkit.getScheduler().cancelTask(fakeCalendarTask);
-        DataHandler.saveCalendar();
+        DailyTasks.getInstance().getDataHandler().saveCalendar();
     }
 
     public boolean isUsingFakeCalendar() {
