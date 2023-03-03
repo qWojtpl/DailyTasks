@@ -1,5 +1,6 @@
 package pl.dailytasks.gui;
 
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -20,11 +21,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Getter
 public class GUIHandler {
 
     private final Player player;
     private Inventory inventory;
-    public static List<GUIHandler> registeredInventories = new ArrayList<>();
+    private final static List<GUIHandler> registeredInventories = new ArrayList<>();
 
     public GUIHandler(Player p) {
         this.player = p;
@@ -40,14 +42,6 @@ public class GUIHandler {
 
     public void Open() {
         this.getPlayer().openInventory(this.inventory);
-    }
-
-    public Player getPlayer() {
-        return this.player;
-    }
-
-    public Inventory getInventory() {
-        return this.inventory;
     }
 
     public void Create() {
@@ -122,8 +116,12 @@ public class GUIHandler {
         inventory.setItem(slot, item); // Add item to GUI
     }
 
+    public static List<GUIHandler> getRegisteredInventories() {
+        return registeredInventories;
+    }
+
     public static void closeAllInventories() {
-        for(GUIHandler gui : GUIHandler.registeredInventories) {
+        for(GUIHandler gui : GUIHandler.getRegisteredInventories()) {
             gui.getPlayer().closeInventory();
         }
     }

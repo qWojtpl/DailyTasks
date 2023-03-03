@@ -24,10 +24,6 @@ import pl.dailytasks.gui.GUIHandler;
 import pl.dailytasks.tasks.PlayerTasks;
 import pl.dailytasks.tasks.TaskManager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 public class Events implements Listener {
 
     /*
@@ -36,123 +32,57 @@ public class Events implements Listener {
     "Event call is critical and must have the final say in what happens to the event"
     Source: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/EventPriority.html
      */
-
-    private final HashMap<String, List<Achievement>> registeredEvents = new HashMap<>();
-
-    public List<Achievement> getEventAchievements(String event, boolean addToMemory) {
-        event = event.toLowerCase(); // Make event lowercase
-        if(!registeredEvents.containsKey(event)) { // If registered events doesn't contain this event
-            if(addToMemory) { // If we need to add empty list to memory...
-                registeredEvents.put(event, new ArrayList<>());
-            } else {
-                return new ArrayList<>();
-            }
-        }
-        return registeredEvents.get(event);
-    }
-
-    public HashMap<String, List<Achievement>> getRegisteredEvents() {
-        return this.registeredEvents;
-    }
-
-    public void registerEvent(String event, Achievement achievement) {
-        event = event.toLowerCase(); // Make event lowercase
-        List<Achievement> list = getEventAchievements(event, true); // Get list or add empty list to the memory
-        list.add(achievement); // Add achievement ot list
-    }
-
-    public void clearRegisteredEvents() {
-        this.registeredEvents.clear();
-    }
-
-    public void checkForAchievementEvents(Player player, String checkable) {
-        String[] ev = checkable.split(" "); // Split checkable
-        AchievementManager am = AchievementsEngine.getInstance().getAchievementManager(); // Get achievement manager
-        // Loop through registered events which are same as checkable
-        String toCheck = ev[0] + " " + ev[1];
-        if(ev[0].equalsIgnoreCase("chat") || ev[0].equalsIgnoreCase("sign")) {
-            toCheck = checkable;
-        }
-        for(Achievement a : getEventAchievements(toCheck, false)) {
-            am.Check(player, checkable, a);
-        }
-        // Loop through registered events which contains * (any)
-        for(Achievement a : getEventAchievements(ev[0] + " *", false)) {
-            am.Check(player, checkable, a);
-        }
-        for(String key : getRegisteredEvents().keySet()) { // Loop through all registered events
-            String[] k = key.split(" ");
-            if(ev[0].equalsIgnoreCase(k[0]) && key.contains("*%")) { // If registered event equals given event and registered event has *%
-                for(Achievement a : getRegisteredEvents().get(key)) { // Loop through achievements with this key
-                    am.Check(player, checkable, a);
-                }
-            }
-        }
-    }
+    
+    private final TaskManager tm = DailyTasks.getInstance().getTaskManager();
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        PlayerAchievementState.Create(event.getPlayer());
-        checkForAchievementEvents(event.getPlayer(), "join server");
+        PlayerTasks.Create(event.getPlayer());
+        tm.Check(event.getPlayer(), "join server");
     }
 
-    @EventHandler
+    /*@EventHandler
     public void onLeave(PlayerQuitEvent event) {
         PlayerAchievementState.Remove(event.getPlayer());
-    }
+    }*/
 
     @EventHandler
     public void onKill(EntityDeathEvent event) {
         if(event.getEntity().getKiller() != null) {
-            String checkable = "kill " + event.getEntity().getType().name();
-            if(event.getEntity().getCustomName() != null) {
-                checkable = checkable + " named " + event.getEntity().getCustomName();
-            }
-            checkForAchievementEvents(event.getEntity().getKiller(), checkable);
+            tm.Check(event.getEntity().getKiller(), "kill " + event.getEntity().getType().name());
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onBreak(BlockBreakEvent event) {
         if(event.isCancelled()) return;
-        checkForAchievementEvents(event.getPlayer(), "break " + event.getBlock().getType().name());
-        checkForAchievementEvents(event.getPlayer(), "destroy " + event.getBlock().getType().name());
+        tm.Check(event.getPlayer(), "break " + event.getBlock().getType().name());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlace(BlockPlaceEvent event) {
         if(event.isCancelled()) return;
-        checkForAchievementEvents(event.getPlayer(), "place " + event.getBlock().getType().name());
+        tm.Check(event.getPlayer(), "place " + event.getBlock().getType().name());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPickup(EntityPickupItemEvent event) {
         if(event.isCancelled()) return;
         if(event.getEntity() instanceof Player) {
-            String checkable = "pickup " + event.getItem().getItemStack().getType();
-            if(event.getItem().getItemStack().getItemMeta().getDisplayName().length() > 0) {
-                checkable = checkable + " named " + event.getItem().getItemStack().getItemMeta().getDisplayName();
-            }
             for(int i = 0; i < event.getItem().getItemStack().getAmount(); i++) {
-                checkForAchievementEvents((Player) event.getEntity(), checkable);
+                tm.Check((Player) event.getEntity(), "pickup " + event.getItem().getItemStack().getType());
             }
-            checkable = checkable.replaceFirst("pickup", "T_pickup");
-            checkForAchievementEvents((Player) event.getEntity(), checkable);
+            tm.Check((Player) event.getEntity(), "T_pickup " + event.getItem().getItemStack().getType());
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onDrop(PlayerDropItemEvent event) {
         if(event.isCancelled()) return;
-        String checkable = "drop " + event.getItemDrop().getItemStack().getType();
-        if(event.getItemDrop().getItemStack().getItemMeta().getDisplayName().length() > 0) {
-            checkable = checkable + " named " + event.getItemDrop().getItemStack().getItemMeta().getDisplayName();
-        }
         for(int i = 0; i < event.getItemDrop().getItemStack().getAmount(); i++) {
-            checkForAchievementEvents(event.getPlayer(), checkable);
+            tm.Check(event.getPlayer(), "drop " + event.getItemDrop().getItemStack().getType());
         }
-        checkable = checkable.replaceFirst("drop", "T_drop");
-        checkForAchievementEvents(event.getPlayer(), checkable);
+        tm.Check(event.getPlayer(), "T_drop " + event.getItemDrop().getItemStack().getType());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -164,35 +94,26 @@ public class Events implements Listener {
         } else {
             is = event.getCurrentItem();
         }
-        String checkable = "craft " + is.getType();
-        if(is.getItemMeta().getDisplayName().length() > 0) {
-            checkable = checkable + " named " + is.getItemMeta().getDisplayName();
-        }
         for(int i = 0; i < is.getAmount(); i++) {
-            checkForAchievementEvents((Player) event.getWhoClicked(), checkable);
+            tm.Check((Player) event.getWhoClicked(), "craft " + is.getType());
         }
-        checkable = checkable.replaceFirst("craft", "T_craft");
-        checkForAchievementEvents((Player) event.getWhoClicked(), checkable);
+        tm.Check((Player) event.getWhoClicked(), "T_craft " + is.getType());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEnchant(EnchantItemEvent event) {
         if(event.isCancelled()) return;
-        String checkable = "enchant " + event.getItem().getType();
-        if(event.getItem().getItemMeta().getDisplayName().length() > 0) {
-            checkable = checkable + " named " + event.getItem().getItemMeta().getDisplayName();
-        }
-        checkForAchievementEvents(event.getEnchanter(), checkable);
+        tm.Check(event.getEnchanter(), "enchant " + event.getItem().getType());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onFish(PlayerFishEvent event) {
         if(event.isCancelled()) return;
         if(event.getCaught() != null && event.getCaught() instanceof Item && event.getState().toString().equals("CAUGHT_FISH")) {
-            checkForAchievementEvents(event.getPlayer(), "fish " + ((Item) event.getCaught()).getItemStack().getType());
+            tm.Check(event.getPlayer(), "fish " + ((Item) event.getCaught()).getItemStack().getType());
         }
         if(event.getCaught() != null && !event.getState().toString().equals("CAUGHT_FISH")) {
-            checkForAchievementEvents(event.getPlayer(), "catch " + event.getCaught().getType());
+            tm.Check(event.getPlayer(), "catch " + event.getCaught().getType());
         }
     }
 
@@ -200,12 +121,7 @@ public class Events implements Listener {
     public void onShootBow(EntityShootBowEvent event) {
         if(event.isCancelled()) return;
         if(event.getEntity() instanceof Player) {
-            String checkable = "shoot " + event.getBow().getType().name();
-            if(event.getBow().getItemMeta().getDisplayName().length() > 0) {
-                checkable = checkable + " named " + event.getBow().getItemMeta().getDisplayName();
-            }
-            checkForAchievementEvents((Player) event.getEntity(), checkable);
-
+            tm.Check((Player) event.getEntity(), "shoot " + event.getBow().getType().name());
         }
     }
 
@@ -215,23 +131,22 @@ public class Events implements Listener {
         if(!(event.getEntity().getShooter() instanceof Player)) return;
         Player p = (Player) event.getEntity().getShooter();
         if(event.getEntity() instanceof Trident) {
-            //((Trident) event.getEntity()).getItem().getItemMeta().getDisplayName();
-            checkForAchievementEvents(p, "throw trident");
+            tm.Check(p, "throw trident");
         } else if(event.getEntity() instanceof Snowball) {
-            checkForAchievementEvents(p, "throw snowball");
+            tm.Check(p, "throw snowball");
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onCommand(PlayerCommandPreprocessEvent event) {
         if(event.isCancelled()) return;
-        checkForAchievementEvents(event.getPlayer(), "command " + event.getMessage());
+        tm.Check(event.getPlayer(), "command " + event.getMessage());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onChat(AsyncPlayerChatEvent event) {
         if(event.isCancelled()) return;
-        checkForAchievementEvents(event.getPlayer(), "chat " + event.getMessage());
+        tm.Check(event.getPlayer(), "chat " + event.getMessage());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -244,7 +159,7 @@ public class Events implements Listener {
                     message = message + " " + event.getLine(i);
                 }
             }
-            checkForAchievementEvents(event.getPlayer(), "sign " + message);
+            tm.Check(event.getPlayer(), "sign " + message);
         }
     }
 
@@ -252,7 +167,7 @@ public class Events implements Listener {
     public void onBreed(EntityBreedEvent event) {
         if(event.isCancelled()) return;
         if(!(event.getBreeder() instanceof Player)) return;
-        checkForAchievementEvents((Player) event.getBreeder(), "breed " + event.getEntity().getType().name());
+        tm.Check((Player) event.getBreeder(), "breed " + event.getEntity().getType().name());
     }
 
     // Method source: https://www.spigotmc.org/threads/get-accurate-crafting-result-from-shift-clicking.446520/
@@ -273,7 +188,7 @@ public class Events implements Listener {
 
     @EventHandler
     public void onDrag(InventoryDragEvent event) {
-        for(GUIHandler gui : GUIHandler.registeredInventories) { // Loop through registered inventories
+        for(GUIHandler gui : GUIHandler.getRegisteredInventories()) { // Loop through registered inventories
             if (event.getInventory().equals(gui.getInventory())) { // If player's inventory is in registered inventories
                 event.setCancelled(true); // Cancel drag event
                 break; // Exit loop
@@ -283,7 +198,7 @@ public class Events implements Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
-        for(GUIHandler gui : GUIHandler.registeredInventories) { // Loop through registered inventories
+        for(GUIHandler gui : GUIHandler.getRegisteredInventories()) { // Loop through registered inventories
             if (event.getInventory().equals(gui.getInventory())) { // If player's inventory is in registered inventories
                 event.setCancelled(true); // Cancel click event
                 break; // Exit loop
@@ -293,9 +208,9 @@ public class Events implements Listener {
 
     @EventHandler
     public void onClose(InventoryCloseEvent event) { // Remove inventory from registered inventories on close
-        for(GUIHandler gui : GUIHandler.registeredInventories) { // Loop through registered inventories
+        for(GUIHandler gui : GUIHandler.getRegisteredInventories()) { // Loop through registered inventories
             if (event.getInventory().equals(gui.getInventory())) { // Check if looped inventory equals closed inventory
-                GUIHandler.registeredInventories.remove(gui); // Remove inventory from registered inventories
+                GUIHandler.getRegisteredInventories().remove(gui); // Remove inventory from registered inventories
                 break; // Exit loop
             }
         }
