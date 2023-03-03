@@ -23,7 +23,11 @@ public class TaskManager {
     private final HashMap<String, List<TaskObject>> taskList = new HashMap<>();
     private final HashMap<String, RewardObject> dayRewardList = new HashMap<>();
     private final HashMap<String, RewardObject> monthRewardList = new HashMap<>();
-    private final DataHandler dh = DailyTasks.getInstance().getDataHandler();
+    private DataHandler dh;
+
+    public void setDataHandler(DataHandler dh) {
+        this.dh = dh;
+    }
     
     public void Check(Player p, String checkable) {
         if(!p.hasPermission(DailyTasks.getInstance().getPermissionManager().getPermission("dt.use"))) return;
@@ -90,6 +94,7 @@ public class TaskManager {
         List<TaskObject> pool = new ArrayList<>(getTaskPool());
         if(pool.size() == 0 || getTodayTasks().size() >= numberOfTasks) return;
         for(int i = 0; i < numberOfTasks; i++) {
+            if(pool.size() == 0) break;
             int index = RandomNumber.randomInt(0, pool.size()-1);
             TaskObject to = pool.get(index);
             getTodayTasks().add(new TaskObject(to.event, to.min, to.max));

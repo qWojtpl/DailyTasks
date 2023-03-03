@@ -229,7 +229,11 @@ public class DataHandler {
                 }
             }
         }
-        DailyTasks.getInstance().setLastRandomizedDate(yml.getString("data.lastRandomized"));
+        String date = yml.getString("data.lastRandomized");
+        if(date == null) {
+            date = "";
+        }
+        DailyTasks.getInstance().setLastRandomizedDate(date);
         DataHandler.deleteOldData = yml.getBoolean("options.deleteOldData");
         DailyTasks.getInstance().runDateCheck();
         try {

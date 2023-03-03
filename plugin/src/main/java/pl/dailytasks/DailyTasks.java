@@ -38,13 +38,14 @@ public final class DailyTasks extends JavaPlugin {
     @Override
     public void onEnable() {
         main = this; // Set main instance as this
+        this.taskManager = new TaskManager();
+        this.dataHandler = new DataHandler();
+        this.taskManager.setDataHandler(this.dataHandler);
         this.permissionManager = new PermissionManager();
         this.permissionManager.loadPermissions(); // Register permissions
-        this.taskManager = new TaskManager();
         this.dateManager = new DateManager();
         this.playerUtil = new PlayerUtil();
         this.messages = new Messages();
-        this.dataHandler = new DataHandler();
         getServer().getPluginManager().registerEvents(new Events(), this); // Register events
         getCommand("dailytasks").setExecutor(new Commands()); // Register command
         getCommand("dailytasks").setTabCompleter(new CommandHelper()); // Register tab completer

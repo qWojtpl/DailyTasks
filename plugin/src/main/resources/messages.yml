@@ -10,4 +10,4 @@ messages:
   not-completed: "%nl%§cYou didn't completed this task!"
   completed: "%nl%§aYou completed this task!"
   complete-day: "§c----------------------------%nl% %nl%§e§lYou completed day §a{0}%nl%§e§lReward: §a{1}%nl% %nl%§c----------------------------"
-  complete-month: "messages.complete-month", "§c§k----------------------------%nl% %nl%§e§lYou completed month §a{0}%nl%§e§lReward: §a{1} %nl% %nl%§c§k----------------------------"
+  complete-month: "§c§k----------------------------%nl% %nl%§e§lYou completed month §a{0}%nl%§e§lReward: §a{1} %nl% %nl%§c§k----------------------------"
