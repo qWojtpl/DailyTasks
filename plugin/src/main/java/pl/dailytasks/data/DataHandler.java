@@ -1,9 +1,12 @@
 package pl.dailytasks.data;
 
+import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import pl.dailytasks.DailyTasks;
+import pl.dailytasks.gui.GUIHandler;
 import pl.dailytasks.tasks.PlayerTasks;
 import pl.dailytasks.tasks.RewardObject;
 import pl.dailytasks.tasks.TaskManager;
@@ -16,16 +19,31 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class DataHandler {
 
-    public static boolean deleteOldData = false;
+    public boolean deleteOldData = false;
 
     public void load() {
+        GUIHandler.closeAllInventories(); // Close all GUI inventories
+        saveCalendar(); // Save calendar (if using fake calendar)
+        DailyTasks.getInstance().getPlayerTaskList().clear();
+        DailyTasks.getInstance().setLastRandomizedDate("");
+        DailyTasks.getInstance().setDataCheckInitialized(false);
+        TaskManager tm = DailyTasks.getInstance().getTaskManager();
+        tm.getSourceDayReward().clear();
+        tm.getSourceMonthReward().clear();
+        tm.getSourceTaskList().clear();
+        tm.getTaskPool().clear();
+        tm.getRewardPool().clear();
         loadCalendar(); // Load calendar (if using fake set calendar as this fake one)
         loadMessages(); // Load messages
         loadTasks(); // Load task pool
         loadRewards(); // Load rewards
         loadPluginData(); // Load plugin data (task history, rewards history, options, calendar etc)
+        for(Player p : Bukkit.getOnlinePlayers()) {
+            PlayerTasks.Create(p); // Create PlayerTasks for all players on the server
+        }
     }
 
     public File createPlayerFile(Player p) {
@@ -234,7 +252,7 @@ public class DataHandler {
             date = "";
         }
         DailyTasks.getInstance().setLastRandomizedDate(date);
-        DataHandler.deleteOldData = yml.getBoolean("options.deleteOldData");
+        this.deleteOldData = yml.getBoolean("options.deleteOldData");
         DailyTasks.getInstance().runDateCheck();
         try {
             yml.save(pluginDataFile);

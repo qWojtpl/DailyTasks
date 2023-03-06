@@ -65,19 +65,17 @@ public class GUIHandler {
             PlayerTasks pt = PlayerTasks.Create(player);
             if(day <= currentDay) {
                 TaskManager tm = DailyTasks.getInstance().getTaskManager();
-                if(tm.getTasks(day).size() != 0) {
-                    task = messages.getMessage("tasks") + "%nl%";
-                    int j = 0;
-                    if(tm.getTasks(day).size() == 0) {
-                        task = task + "§c" + messages.getMessage("day-without-task");
-                    } else {
-                        for (TaskObject to : tm.getTasks(day)) {
-                            int playerProgress = pt.getProgressByDay(day).get(j);
-                            int maxProgress = to.currentRandom;
-                            String progress = playerProgress + "/" + maxProgress;
-                            task = task + "§2" + to.initializedEvent + " " + progress + "%nl%";
-                            j++;
-                        }
+                task = messages.getMessage("tasks") + "%nl%";
+                int j = 0;
+                if(tm.getTasks(day).size() == 0) {
+                    task = task + "§c" + messages.getMessage("day-without-task");
+                } else {
+                    for (TaskObject to : tm.getTasks(day)) {
+                        int playerProgress = pt.getProgressByDay(day).get(j);
+                        int maxProgress = to.currentRandom;
+                        String progress = playerProgress + "/" + maxProgress;
+                        task = task + "§2" + to.initializedEvent + " " + progress + "%nl%";
+                        j++;
                     }
                 }
                 if(day == currentDay) {

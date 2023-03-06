@@ -25,9 +25,10 @@ public final class DailyTasks extends JavaPlugin {
     private static DailyTasks main; // Main instance
     private final HashMap<Player, PlayerTasks> playerTaskList = new HashMap<>(); // PlayerTasks list
     @Setter
-    public String lastRandomizedDate = ""; // Last randomized date
-    public int dateCheckTask;
-    public boolean dataCheckInitialized = false;
+    private String lastRandomizedDate = ""; // Last randomized date
+    private int dateCheckTask;
+    @Setter
+    private boolean dataCheckInitialized;
     private DataHandler dataHandler;
     private PermissionManager permissionManager;
     private TaskManager taskManager;
@@ -51,9 +52,6 @@ public final class DailyTasks extends JavaPlugin {
         getCommand("dailytasks").setTabCompleter(new CommandHelper()); // Register tab completer
         dataHandler.load(); // Load data (configs, tasks etc)
         getLogger().info("Loaded.");
-        for(Player p : Bukkit.getOnlinePlayers()) {
-            PlayerTasks.Create(p); // Create PlayerTasks for all players on the server
-        }
     }
 
     @Override
@@ -61,22 +59,6 @@ public final class DailyTasks extends JavaPlugin {
         GUIHandler.closeAllInventories(); // Close all GUI inventories
         dataHandler.saveCalendar(); // Save calendar (if using fake calendar)
         getLogger().info("Bye!");
-    }
-
-    public void Reload() {
-        GUIHandler.closeAllInventories(); // Close all GUI inventories
-        dataHandler.saveCalendar(); // Save calendar (if using fake calendar)
-        playerTaskList.clear();
-        lastRandomizedDate = "";
-        dataCheckInitialized = false;
-        taskManager.getSourceDayReward().clear();
-        taskManager.getSourceMonthReward().clear();
-        taskManager.getSourceTaskList().clear();
-        dataHandler.load(); // Load data (configs, tasks etc)
-        getLogger().info("Reloaded.");
-        for(Player p : Bukkit.getOnlinePlayers()) {
-            PlayerTasks.Create(p); // Create PlayerTasks for all players on the server
-        }
     }
 
     public void runDateCheck() {

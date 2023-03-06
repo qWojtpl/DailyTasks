@@ -13,10 +13,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import pl.dailytasks.DailyTasks;
@@ -201,7 +198,17 @@ public class Events implements Listener {
         for(GUIHandler gui : GUIHandler.getRegisteredInventories()) { // Loop through registered inventories
             if (event.getInventory().equals(gui.getInventory())) { // If player's inventory is in registered inventories
                 event.setCancelled(true); // Cancel click event
-                break; // Exit loop
+                return;
+            }
+        }
+        if(event.getInventory().getType().equals(InventoryType.FURNACE)) {
+            if(event.getSlot() == 2) {
+                ItemStack item = event.getInventory().getItem(2);
+                if (item != null) {
+                    for (int i = 0; i < item.getAmount(); i++) {
+                        tm.Check((Player) event.getWhoClicked(), "furnace " + item.getType().name());
+                    }
+                }
             }
         }
     }
