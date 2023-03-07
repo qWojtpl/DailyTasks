@@ -11,7 +11,7 @@
 
 # Installation
 
-<p>Put dailytasks.jar from <a>https://github.com/qWojtpl/dailytasks/releases/latest</a> to your plugins folder and restart the server.</p>
+<p>Put dailytasks.jar from https://github.com/qWojtpl/dailytasks/releases/latest to your plugins folder and restart the server.</p>
 
 # Configuration
 
