@@ -30,6 +30,7 @@ public class TaskManager {
     }
     
     public void Check(Player p, String checkable) {
+        if(p == null || checkable == null) return;
         if(!p.hasPermission(DailyTasks.getInstance().getPermissionManager().getPermission("dt.use"))) return;
         int i = -1;
         PlayerTasks pt = PlayerTasks.Create(p);

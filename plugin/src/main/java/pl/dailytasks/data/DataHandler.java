@@ -26,7 +26,6 @@ public class DataHandler {
 
     public void load() {
         GUIHandler.closeAllInventories(); // Close all GUI inventories
-        saveCalendar(); // Save calendar (if using fake calendar)
         DailyTasks.getInstance().getPlayerTaskList().clear();
         DailyTasks.getInstance().setLastRandomizedDate("");
         DailyTasks.getInstance().setDataCheckInitialized(false);
@@ -73,13 +72,9 @@ public class DataHandler {
         ConfigurationSection section = yml.getConfigurationSection("saved"); // Get YAML section
         if(section == null) return;
         for(String date : section.getKeys(false)) { // Loop through section keys (dates, eg. '2023/1/18')
-            String[] dateArray = date.split("/");
-            DateManager dm = DailyTasks.getInstance().getDateManager();
-            if(!dm.isUsingFakeCalendar() && deleteOldData) {
-                if(Integer.parseInt(dateArray[0]) <= dm.getYear() && Integer.parseInt(dateArray[1]) < dm.getMonth()) {
-                    yml.set("saved." + date, null);
-                    continue;
-                }
+            if(deleteOldData && canDeleteOldData(date)) {
+                yml.set("saved." + date, null);
+                continue;
             }
             List<Integer> completed = new ArrayList<>(); // Player's completed tasks
             List<Integer> progress = new ArrayList<>(); // Player's progress
@@ -158,13 +153,14 @@ public class DataHandler {
     public void loadCalendar() {
         File pluginDataFile = createPluginData();
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(pluginDataFile);
+        DateManager dm = DailyTasks.getInstance().getDateManager();
+        dm.removeFakeCalendar();
         if(yml.getString("data.fakeCalendar") != null) {
             String args[] = yml.getString("data.fakeCalendar").split(" ");
             int i_args[] = new int[6];
             for(int i = 0; i < i_args.length; i++) {
                 i_args[i] = Integer.parseInt(args[i]);
             }
-            DateManager dm = DailyTasks.getInstance().getDateManager();
             dm.createFakeCalendar(i_args[0], i_args[1]-1, i_args[2], i_args[3], i_args[4], i_args[5]);
         }
     }
@@ -209,17 +205,14 @@ public class DataHandler {
     public void loadPluginData() {
         File pluginDataFile = createPluginData();
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(pluginDataFile);
+        this.deleteOldData = yml.getBoolean("options.deleteOldData");
         ConfigurationSection section = yml.getConfigurationSection("history");
         TaskManager tm = DailyTasks.getInstance().getTaskManager();
         if(section != null) {
             for(String key : section.getKeys(false)) {
-                String[] dateArray = key.split("/");
-                DateManager dm = DailyTasks.getInstance().getDateManager();
-                if(!dm.isUsingFakeCalendar() && deleteOldData) {
-                    if(Integer.parseInt(dateArray[0]) <= dm.getYear() && Integer.parseInt(dateArray[1]) < dm.getMonth()) {
-                        yml.set("history." + key, null);
-                        continue;
-                    }
+                if(deleteOldData && canDeleteOldData(key)) {
+                    yml.set("history." + key, null);
+                    continue;
                 }
                 List<String> tasks = yml.getStringList("history." + key);
                 List<TaskObject> initializedTasks = new ArrayList<>();
@@ -236,6 +229,10 @@ public class DataHandler {
             section = yml.getConfigurationSection(rewardType + "-reward-history");
             if (section != null) {
                 for (String key : section.getKeys(false)) {
+                    if(deleteOldData && canDeleteOldData(key)) {
+                        yml.set(rewardType + "-reward-history." + key, null);
+                        continue;
+                    }
                     RewardObject reward = new RewardObject(yml.getString(rewardType + "-reward-history." + key),
                             0, 0, (rewardType.equals("month")));
                     if(rewardType.equals("day")) {
@@ -252,7 +249,6 @@ public class DataHandler {
             date = "";
         }
         DailyTasks.getInstance().setLastRandomizedDate(date);
-        this.deleteOldData = yml.getBoolean("options.deleteOldData");
         DailyTasks.getInstance().runDateCheck();
         try {
             yml.save(pluginDataFile);
@@ -421,5 +417,11 @@ public class DataHandler {
                 DailyTasks.getInstance().getLogger().info("Loaded " + rewardType + " reward: " + key);
             }
         }
+    }
+
+    private boolean canDeleteOldData(String date) {
+        DateManager dm = DailyTasks.getInstance().getDateManager();
+        String[] dateArray = date.split("/");
+        return (Integer.parseInt(dateArray[0]) <= dm.getYear() && Integer.parseInt(dateArray[1]) < dm.getMonth());
     }
 }

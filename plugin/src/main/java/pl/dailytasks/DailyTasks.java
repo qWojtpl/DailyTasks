@@ -57,7 +57,6 @@ public final class DailyTasks extends JavaPlugin {
     @Override
     public void onDisable() {
         GUIHandler.closeAllInventories(); // Close all GUI inventories
-        dataHandler.saveCalendar(); // Save calendar (if using fake calendar)
         getLogger().info("Bye!");
     }
 

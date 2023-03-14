@@ -38,11 +38,6 @@ public class Events implements Listener {
         tm.Check(event.getPlayer(), "join server");
     }
 
-    /*@EventHandler
-    public void onLeave(PlayerQuitEvent event) {
-        PlayerAchievementState.Remove(event.getPlayer());
-    }*/
-
     @EventHandler
     public void onKill(EntityDeathEvent event) {
         if(event.getEntity().getKiller() != null) {

@@ -1,0 +1,11 @@
+config:
+  useSQL: true
+  useYAML: false
+  deleteOldData: false
+
+sql:
+  host: ''
+  user: ''
+  password: ''
+  database: ''
+  port: 3306
