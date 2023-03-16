@@ -85,6 +85,7 @@ public class DataHandler {
         if(useYAML) {
             File playerFile = createPlayerFile(p); // Get player file (and create it if not exists)
             YamlConfiguration yml = YamlConfiguration.loadConfiguration(playerFile); // Load YAML
+            getPlayerYAML().put(p.getName(), yml);
             ConfigurationSection section = yml.getConfigurationSection("saved"); // Get YAML section
             if (section == null) return;
             for (String date : section.getKeys(false)) { // Loop through section keys (dates, eg. '2023/1/18')

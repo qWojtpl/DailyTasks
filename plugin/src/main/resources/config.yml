@@ -1,6 +1,6 @@
 config:
-  useSQL: true
-  useYAML: false
+  useYAML: true
+  useSQL: false
   deleteOldData: false
   saveInterval: 300
   logSave: true
