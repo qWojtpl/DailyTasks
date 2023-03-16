@@ -43,7 +43,7 @@ public class TaskManager {
             if(!taskEvent[0].equalsIgnoreCase(givenEvent[0])) {
                 continue;
             }
-            if(!taskEvent[2].equalsIgnoreCase(givenEvent[1])) {
+            if(!taskEvent[2].equalsIgnoreCase(givenEvent[1]) && !taskEvent[2].equalsIgnoreCase("*")) {
                 continue;
             }
             if(pt.checkIfCompletedDayTask(i)) {
@@ -93,8 +93,12 @@ public class TaskManager {
 
     public void RandomizeTasks(int numberOfTasks) {
         List<TaskObject> pool = new ArrayList<>(getTaskPool());
-        if(pool.size() == 0 || getTodayTasks().size() >= numberOfTasks) return;
-        for(int i = 0; i < numberOfTasks; i++) {
+        if(getTodayTasks().size() > 3) {
+            DailyTasks.getInstance().getLogger().severe("Broken day! Too many tasks! Clearing list...");
+            getTodayTasks().clear();
+        }
+        int startSize = getTodayTasks().size();
+        for(int i = 0; i < numberOfTasks - startSize; i++) {
             if(pool.size() == 0) break;
             int index = RandomNumber.randomInt(0, pool.size()-1);
             TaskObject to = pool.get(index);

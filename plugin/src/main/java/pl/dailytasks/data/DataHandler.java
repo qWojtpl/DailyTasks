@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.checkerframework.checker.units.qual.A;
 import pl.dailytasks.DailyTasks;
 import pl.dailytasks.gui.GUIHandler;
 import pl.dailytasks.tasks.PlayerTasks;
@@ -84,11 +85,11 @@ public class DataHandler {
 
     public void loadPlayer(Player p) {
         PlayerTasks pt = PlayerTasks.Create(p); // Get playertasks object
-        loadPlayerAutoComplete(pt); // Load auto-complete days
         if(useYAML) {
             File playerFile = createPlayerFile(p); // Get player file (and create it if not exists)
             YamlConfiguration yml = YamlConfiguration.loadConfiguration(playerFile); // Load YAML
             getPlayerYAML().put(p.getName(), yml);
+            loadPlayerAutoComplete(pt); // Load auto-complete days
             ConfigurationSection section = yml.getConfigurationSection("saved"); // Get YAML section
             if (section == null) return;
             for (String date : section.getKeys(false)) { // Loop through section keys (dates, eg. '2023/1/18')
@@ -121,8 +122,8 @@ public class DataHandler {
             Bukkit.getScheduler().runTaskAsynchronously(DailyTasks.getInstance(), () -> {
                 HashMap<String, PlayerTasks> yamls = new HashMap<>(getPendingYAMLs());
                 getPendingYAMLs().clear();
-                for(String key : getPendingYAMLs().keySet()) {
-                    PlayerTasks pt = getPendingYAMLs().get(key);
+                for(String key : yamls.keySet()) {
+                    PlayerTasks pt = yamls.get(key);
                     try {
                         getPlayerYAML().get(key).save(createPlayerFile(pt.getPlayer()));
                     } catch(IOException e) {
@@ -134,8 +135,8 @@ public class DataHandler {
         } else {
             HashMap<String, PlayerTasks> yamls = new HashMap<>(getPendingYAMLs());
             getPendingYAMLs().clear();
-            for(String key : getPendingYAMLs().keySet()) {
-                PlayerTasks pt = getPendingYAMLs().get(key);
+            for(String key : yamls.keySet()) {
+                PlayerTasks pt = yamls.get(key);
                 try {
                     getPlayerYAML().get(key).save(createPlayerFile(pt.getPlayer()));
                 } catch(IOException e) {
@@ -161,12 +162,17 @@ public class DataHandler {
     public void loadPlayerAutoComplete(PlayerTasks pt) {
         File autoCompleteFile = createPluginData();
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(autoCompleteFile);
-        ConfigurationSection section2 = yml.getConfigurationSection("auto-complete");
-        if(section2 == null) return;
-        for(String key : section2.getKeys(false)) {
+        ConfigurationSection section = yml.getConfigurationSection("auto-complete");
+        if(section == null) return;
+        for(String key : section.getKeys(false)) {
             if(!yml.getBoolean("auto-complete." + key)) continue;
             for(int i = 0; i < 3; i++) {
                 addPlayerCompletedTaskByDate(pt, i, key);
+                List<Integer> list = new ArrayList<>();
+                for(int j = 0; j < 3; j++) {
+                    list.add(j);
+                }
+                pt.getSourceCompletedTasks().put(key, list);
             }
         }
     }
@@ -179,15 +185,13 @@ public class DataHandler {
     }
 
     public void addPlayerCompletedTaskByDate(PlayerTasks pt, int index, String date) {
-        File playerFile = createPlayerFile(pt.getPlayer());
-        YamlConfiguration yml = YamlConfiguration.loadConfiguration(playerFile);
+        YamlConfiguration yml = getPlayerYAML().get(pt.getPlayer().getName());
         yml.set("saved." + date + "." + index + ".c", 1);
         addToPending(pt);
     }
 
     public void updatePlayerProgress(PlayerTasks pt, int index) {
-        File playerFile = createPlayerFile(pt.getPlayer());
-        YamlConfiguration yml = YamlConfiguration.loadConfiguration(playerFile);
+        YamlConfiguration yml = getPlayerYAML().get(pt.getPlayer().getName());
         DateManager dm = DailyTasks.getInstance().getDateManager();
         yml.set("saved." + dm.getFormattedDate("%Y/%M/%D") + "." + index + ".p", pt.getProgress().get(index));
         addToPending(pt);
@@ -261,7 +265,14 @@ public class DataHandler {
                 }
                 List<String> tasks = yml.getStringList("history." + key);
                 List<TaskObject> initializedTasks = new ArrayList<>();
+                int i = 0;
                 for(String event : tasks) {
+                    i++;
+                    if(i > 3) {
+                        DailyTasks.getInstance().getLogger().warning("Broken day! Too many tasks! " +
+                                "Look at pluginData history - " + key);
+                        break;
+                    }
                     String[] taskInfo = event.split(" ");
                     TaskObject to = new TaskObject(event, Integer.parseInt(taskInfo[1]), Integer.parseInt(taskInfo[1]));
                     initializedTasks.add(to);

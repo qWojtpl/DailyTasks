@@ -77,7 +77,7 @@ public class CommandHelper implements TabCompleter {
                         }
                     }
                 }
-            } else if(args[0].equalsIgnoreCase("checkcompleted")) {
+            } else if(args[0].equalsIgnoreCase("checkcomplete")) {
                 if(args.length == 2) {
                     completions.add("day");
                     completions.add("date");
@@ -163,7 +163,7 @@ public class CommandHelper implements TabCompleter {
             completions.add("autocomplete");
             completions.add("checkauto");
             completions.add("complete");
-            completions.add("checkcompleted");
+            completions.add("checkcomplete");
             completions.add("checktasks");
             completions.add("checkrewards");
             completions.add("reserve");
