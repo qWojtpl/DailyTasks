@@ -24,6 +24,7 @@ public final class DailyTasks extends JavaPlugin {
 
     private static DailyTasks main; // Main instance
     private final HashMap<Player, PlayerTasks> playerTaskList = new HashMap<>(); // PlayerTasks list
+    private boolean forcedDisable;
     @Setter
     private String lastRandomizedDate = ""; // Last randomized date
     private int dateCheckTask;
@@ -56,8 +57,16 @@ public final class DailyTasks extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        getDataHandler().saveAll(false);
         GUIHandler.closeAllInventories(); // Close all GUI inventories
         getLogger().info("Bye!");
+    }
+
+    public void forceDisable() {
+        if(forcedDisable) return;
+        forcedDisable = true;
+        getLogger().warning("Forcing plugin disable...");
+        getServer().getPluginManager().disablePlugin(this);
     }
 
     public void runDateCheck() {

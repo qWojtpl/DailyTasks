@@ -46,10 +46,13 @@ public class DataHandler {
         tm.getTaskPool().clear();
         tm.getRewardPool().clear();
         loadConfig();
+        if(DailyTasks.getInstance().isForcedDisable()) return;
         loadCalendar(); // Load calendar (if using fake set calendar as this fake one)
         loadMessages(); // Load messages
         loadTasks(); // Load task pool
+        if(DailyTasks.getInstance().isForcedDisable()) return;
         loadRewards(); // Load rewards
+        if(DailyTasks.getInstance().isForcedDisable()) return;
         loadPluginData(); // Load plugin data (task history, rewards history, options, calendar etc)
         for(Player p : Bukkit.getOnlinePlayers()) {
             PlayerTasks.Create(p); // Create PlayerTasks for all players on the server
@@ -439,7 +442,14 @@ public class DataHandler {
         File tasksFile = getTaskFile();
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(tasksFile);
         ConfigurationSection section = yml.getConfigurationSection("tasks");
-        if(section == null) return;
+        if(section == null) {
+            tooLittle();
+            return;
+        }
+        if(section.getKeys(false).size() < 3) {
+            tooLittle();
+            return;
+        }
         for(String key : section.getKeys(false)) {
             if(!yml.getBoolean("tasks." + key + ".enabled")) {
                 continue;
@@ -474,7 +484,10 @@ public class DataHandler {
         String[] rewardTypes = new String[]{"day", "month"};
         for(String rewardType : rewardTypes) {
             ConfigurationSection section = yml.getConfigurationSection(rewardType + "-rewards");
-            if(section == null) continue;
+            if(section == null) {
+                tooLittle();
+                continue;
+            }
             for(String key : section.getKeys(false)) {
                 if(!yml.getBoolean(rewardType + "-rewards." + key + ".enabled")) continue;
                 DailyTasks.getInstance().getTaskManager().getRewardPool()
@@ -492,5 +505,13 @@ public class DataHandler {
         DateManager dm = DailyTasks.getInstance().getDateManager();
         String[] dateArray = date.split("/");
         return (Integer.parseInt(dateArray[0]) <= dm.getYear() && Integer.parseInt(dateArray[1]) < dm.getMonth());
+    }
+
+    private void tooLittle() {
+        DailyTasks.getInstance().getLogger().severe(
+                "DailyTasks must contain at least 3 tasks in task pool, " +
+                        "1 reward in daily-reward pool and 1 reward in monthly-reward pool to work properly. " +
+                        "One or more of this requirements aren't completed. Can't keep up this plugin.");
+        DailyTasks.getInstance().forceDisable();
     }
 }

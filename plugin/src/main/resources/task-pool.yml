@@ -4,3 +4,13 @@ tasks:
     event: "kill %rdm% villager"
     numberMin: 1
     numberMax: 10
+  "1":
+    enabled: true
+    event: "kill %rdm% spider"
+    numberMin: 10
+    numberMax: 30
+  "2":
+    enabled: true
+    event: "break %rdm% *"
+    numberMin: 30
+    numberMax: 60
