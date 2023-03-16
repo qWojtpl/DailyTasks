@@ -26,12 +26,16 @@ public class DataHandler {
     private boolean deleteOldData;
     private boolean useYAML;
     private boolean useSQL;
+    private boolean logSave;
+    private int saveInterval = 300;
+    private int saveTask = -1;
     private final HashMap<String, YamlConfiguration> playerYAML = new HashMap<>();
     private final HashMap<String, String> SQLInfo = new HashMap<>();
     private final HashMap<String, PlayerTasks> pendingYAMLs = new HashMap<>();
 
     public void load() {
         GUIHandler.closeAllInventories(); // Close all GUI inventories
+        saveAll(false);
         DailyTasks.getInstance().getPlayerTaskList().clear();
         DailyTasks.getInstance().setLastRandomizedDate("");
         DailyTasks.getInstance().setDataCheckInitialized(false);
@@ -135,6 +139,18 @@ public class DataHandler {
                     DailyTasks.getInstance().getLogger().info("IO Exception: " + e);
                 }
             }
+        }
+    }
+
+    public void saveAll(boolean async) {
+        if(logSave) {
+            DailyTasks.getInstance().getLogger().info("Saving data...");
+        }
+        if(useYAML) {
+            saveYAML(async);
+        }
+        if(useSQL) {
+
         }
     }
 
@@ -291,16 +307,23 @@ public class DataHandler {
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(configFile);
         useYAML = yml.getBoolean("config.useYAML");
         useSQL = yml.getBoolean("config.useSQL");
+        saveInterval = yml.getInt("config.saveInterval");
+        logSave = yml.getBoolean("config.logSave");
+        deleteOldData = yml.getBoolean("config.deleteOldData");
         if(useYAML && useSQL) {
             DailyTasks.getInstance().getLogger().warning("Attention! " +
                     "You're using YAML and SQL to save data at the same time. It can cause errors.");
         }
-        deleteOldData = yml.getBoolean("config.deleteOldData");
         getSQLInfo().put("host", yml.getString("sql.host"));
         getSQLInfo().put("user", yml.getString("sql.user"));
         getSQLInfo().put("password", yml.getString("sql.password"));
         getSQLInfo().put("database", yml.getString("sql.database"));
         getSQLInfo().put("port", String.valueOf(yml.getInt("sql.port")));
+        if(saveTask != -1) {
+            DailyTasks.getInstance().getServer().getScheduler().cancelTask(saveTask);
+            saveTask = DailyTasks.getInstance().getServer().getScheduler().scheduleSyncRepeatingTask(DailyTasks.getInstance(), () ->
+                saveAll(true), 20L * saveInterval, 20L * saveInterval);
+        }
     }
 
     public void saveTodayTasks() {

@@ -2,6 +2,8 @@ config:
   useSQL: true
   useYAML: false
   deleteOldData: false
+  saveInterval: 300
+  logSave: true
 
 sql:
   host: ''
