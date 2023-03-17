@@ -119,7 +119,8 @@ public class GUIHandler {
     }
 
     public static void closeAllInventories() {
-        for(GUIHandler gui : GUIHandler.getRegisteredInventories()) {
+        List<GUIHandler> guis = new ArrayList<>(getRegisteredInventories());
+        for(GUIHandler gui : guis) {
             gui.getPlayer().closeInventory();
         }
     }

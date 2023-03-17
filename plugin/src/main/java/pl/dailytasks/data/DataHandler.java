@@ -5,7 +5,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.units.qual.A;
 import pl.dailytasks.DailyTasks;
 import pl.dailytasks.gui.GUIHandler;
 import pl.dailytasks.tasks.PlayerTasks;
@@ -25,18 +24,15 @@ import java.util.List;
 public class DataHandler {
 
     private boolean deleteOldData;
-    private boolean useYAML;
-    private boolean useSQL;
     private boolean logSave;
     private int saveInterval = 300;
     private int saveTask = -1;
     private final HashMap<String, YamlConfiguration> playerYAML = new HashMap<>();
-    private final HashMap<String, String> SQLInfo = new HashMap<>();
     private final HashMap<String, PlayerTasks> pendingYAMLs = new HashMap<>();
 
     public void load() {
         GUIHandler.closeAllInventories(); // Close all GUI inventories
-        saveAll(false);
+        saveYAML(false);
         DailyTasks.getInstance().getPlayerTaskList().clear();
         DailyTasks.getInstance().setLastRandomizedDate("");
         DailyTasks.getInstance().setDataCheckInitialized(false);
@@ -85,39 +81,40 @@ public class DataHandler {
 
     public void loadPlayer(Player p) {
         PlayerTasks pt = PlayerTasks.Create(p); // Get playertasks object
-        if(useYAML) {
-            File playerFile = createPlayerFile(p); // Get player file (and create it if not exists)
-            YamlConfiguration yml = YamlConfiguration.loadConfiguration(playerFile); // Load YAML
-            getPlayerYAML().put(p.getName(), yml);
-            loadPlayerAutoComplete(pt); // Load auto-complete days
-            ConfigurationSection section = yml.getConfigurationSection("saved"); // Get YAML section
-            if (section == null) return;
-            for (String date : section.getKeys(false)) { // Loop through section keys (dates, eg. '2023/1/18')
-                if (deleteOldData && canDeleteOldData(date)) {
-                    yml.set("saved." + date, null);
-                    continue;
-                }
-                List<Integer> completed = new ArrayList<>(); // Player's completed tasks
-                List<Integer> progress = new ArrayList<>(); // Player's progress
-                for (int i = 0; i < 3; i++) { // Loop through daily tasks
-                    if (yml.getInt("saved." + date + "." + i + ".c") == 1) { // If task is completed...
-                        completed.add(i); // Add to completed tasks
-                    }
-                    progress.add(yml.getInt("saved." + date + "." + i + ".p")); // Add progress - if not set - default int value is 0
-                }
-                pt.getSourceCompletedTasks().put(date, completed); // Put completed tasks as date key
-                pt.getSourceProgress().put(date, progress); // Put tasks progress as date key
+        File playerFile = createPlayerFile(p); // Get player file (and create it if not exists)
+        YamlConfiguration yml = YamlConfiguration.loadConfiguration(playerFile); // Load YAML
+        getPlayerYAML().put(p.getName(), yml);
+        loadPlayerAutoComplete(pt); // Load auto-complete days
+        ConfigurationSection section = yml.getConfigurationSection("saved"); // Get YAML section
+        if (section == null) return;
+        for (String date : section.getKeys(false)) { // Loop through section keys (dates, eg. '2023/1/18')
+            if (deleteOldData && canDeleteOldData(date)) {
+                yml.set("saved." + date, null);
+                continue;
             }
-            try {
-                yml.save(playerFile);
-            } catch (IOException e) {
-                DailyTasks.getInstance().getLogger().info("Cannot save " + pt.getPlayer().getName() + ".yml");
-                DailyTasks.getInstance().getLogger().info("IO Exception: " + e);
+            List<Integer> completed = new ArrayList<>(); // Player's completed tasks
+            List<Integer> progress = new ArrayList<>(); // Player's progress
+            for (int i = 0; i < 3; i++) { // Loop through daily tasks
+                if (yml.getInt("saved." + date + "." + i + ".c") == 1) { // If task is completed...
+                    completed.add(i); // Add to completed tasks
+                }
+                progress.add(yml.getInt("saved." + date + "." + i + ".p")); // Add progress - if not set - default int value is 0
             }
+            pt.getSourceCompletedTasks().put(date, completed); // Put completed tasks as date key
+            pt.getSourceProgress().put(date, progress); // Put tasks progress as date key
+        }
+        try {
+            yml.save(playerFile);
+        } catch (IOException e) {
+            DailyTasks.getInstance().getLogger().info("Cannot save " + pt.getPlayer().getName() + ".yml");
+            DailyTasks.getInstance().getLogger().info("IO Exception: " + e);
         }
     }
 
     public void saveYAML(boolean async) {
+        if(logSave) {
+            DailyTasks.getInstance().getLogger().info("Saving data...");
+        }
         if(async) {
             Bukkit.getScheduler().runTaskAsynchronously(DailyTasks.getInstance(), () -> {
                 HashMap<String, PlayerTasks> yamls = new HashMap<>(getPendingYAMLs());
@@ -144,18 +141,6 @@ public class DataHandler {
                     DailyTasks.getInstance().getLogger().info("IO Exception: " + e);
                 }
             }
-        }
-    }
-
-    public void saveAll(boolean async) {
-        if(logSave) {
-            DailyTasks.getInstance().getLogger().info("Saving data...");
-        }
-        if(useYAML) {
-            saveYAML(async);
-        }
-        if(useSQL) {
-
         }
     }
 
@@ -320,24 +305,13 @@ public class DataHandler {
             DailyTasks.getInstance().saveResource("config.yml", false);
         }
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(configFile);
-        useYAML = yml.getBoolean("config.useYAML");
-        useSQL = yml.getBoolean("config.useSQL");
         saveInterval = yml.getInt("config.saveInterval");
         logSave = yml.getBoolean("config.logSave");
         deleteOldData = yml.getBoolean("config.deleteOldData");
-        if(useYAML && useSQL) {
-            DailyTasks.getInstance().getLogger().warning("Attention! " +
-                    "You're using YAML and SQL to save data at the same time. It can cause errors.");
-        }
-        getSQLInfo().put("host", yml.getString("sql.host"));
-        getSQLInfo().put("user", yml.getString("sql.user"));
-        getSQLInfo().put("password", yml.getString("sql.password"));
-        getSQLInfo().put("database", yml.getString("sql.database"));
-        getSQLInfo().put("port", String.valueOf(yml.getInt("sql.port")));
         if(saveTask != -1) {
             DailyTasks.getInstance().getServer().getScheduler().cancelTask(saveTask);
             saveTask = DailyTasks.getInstance().getServer().getScheduler().scheduleSyncRepeatingTask(DailyTasks.getInstance(), () ->
-                saveAll(true), 20L * saveInterval, 20L * saveInterval);
+                saveYAML(true), 20L * saveInterval, 20L * saveInterval);
         }
     }
 

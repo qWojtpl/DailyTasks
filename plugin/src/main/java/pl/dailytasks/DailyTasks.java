@@ -57,7 +57,7 @@ public final class DailyTasks extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        getDataHandler().saveAll(false);
+        getDataHandler().saveYAML(false);
         GUIHandler.closeAllInventories(); // Close all GUI inventories
         getLogger().info("Bye!");
     }

@@ -1,13 +1,4 @@
 config:
-  useYAML: true
-  useSQL: false
   deleteOldData: false
   saveInterval: 300
   logSave: true
-
-sql:
-  host: ''
-  user: ''
-  password: ''
-  database: ''
-  port: 3306
