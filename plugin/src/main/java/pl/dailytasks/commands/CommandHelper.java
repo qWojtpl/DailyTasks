@@ -55,7 +55,7 @@ public class CommandHelper implements TabCompleter {
                 if(args.length == 2) {
                     completions.add("day");
                     completions.add("date");
-                    completions.add("progress");
+                    completions.add("task");
                 } else if(args.length == 3) {
                     for(Player p : Bukkit.getOnlinePlayers()) {
                         completions.add(p.getName());
@@ -69,7 +69,7 @@ public class CommandHelper implements TabCompleter {
                         } else if(args.length == 6) {
                             completions.add(String.valueOf(dm.getDay()));
                         }
-                    } else if(args[1].equalsIgnoreCase("progress")) {
+                    } else if(args[1].equalsIgnoreCase("task")) {
                         if(args.length == 4) {
                             for(int i = 0; i < 3; i++) {
                                 completions.add(String.valueOf(i));
@@ -81,7 +81,7 @@ public class CommandHelper implements TabCompleter {
                 if(args.length == 2) {
                     completions.add("day");
                     completions.add("date");
-                    completions.add("progress");
+                    completions.add("task");
                 } else if(args.length == 3) {
                     for(Player p : Bukkit.getOnlinePlayers()) {
                         completions.add(p.getName());
@@ -92,14 +92,14 @@ public class CommandHelper implements TabCompleter {
                     }
                 }
                 if(args.length >= 4) {
-                    if(args[1].equalsIgnoreCase("date") || args[1].equalsIgnoreCase("progress")) {
+                    if(args[1].equalsIgnoreCase("date") || args[1].equalsIgnoreCase("task")) {
                         if(args.length == 4) {
                             completions.add(String.valueOf(dm.getYear()));
                         } else if(args.length == 5) {
                             completions.add(String.valueOf(dm.getMonth()));
                         } else if(args.length == 6) {
                             completions.add(String.valueOf(dm.getDay()));
-                        } else if(args.length == 7 && args[1].equalsIgnoreCase("progress")) {
+                        } else if(args.length == 7 && args[1].equalsIgnoreCase("task")) {
                             completions.add("0");
                             completions.add("1");
                             completions.add("2");

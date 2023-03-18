@@ -46,10 +46,10 @@ public class PermissionManager {
         registerPermission("dt.checkauto", "Check if date is marked as auto-complete in DailyTasks");
         registerPermission("dt.complete.day", "Complete this day for player in DailyTasks");
         registerPermission("dt.complete.date", "Complete date for player in DailyTasks");
-        registerPermission("dt.complete.progress", "Complete progress for player in DailyTasks");
+        registerPermission("dt.complete.task", "Complete task index for player in DailyTasks");
         registerPermission("dt.checkcomplete.day", "Check if player completed that day in DailyTasks");
         registerPermission("dt.checkcomplete.date", "Check if player completed that date in DailyTasks");
-        registerPermission("dt.checkcomplete.progress", "Check if player completed progress in specified date in DailyTasks");
+        registerPermission("dt.checkcomplete.task", "Check if player completed task index in specified date in DailyTasks");
         registerPermission("dt.checktasks", "Check what tasks was/is in that date in DailyTasks");
         registerPermission("dt.checkrewards", "Check what rewards was/is in that date in DailyTasks");
         registerPermission("dt.taskpool", "See task pool in DailyTasks");

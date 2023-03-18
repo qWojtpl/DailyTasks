@@ -24,8 +24,8 @@
 `/dt removefake` - Remove fake calendar `dt.removefake` <br>
 `/dt autocomplete` - Mark date as auto-complete `dt.setautocomplete`<br>
 `/dt checkauto` - Check if date is marked as auto-complete `dt.checkauto`<br>
-`/dt complete` - Complete (day/date/progress index for this day) for player `dt.complete` (`dt.complete.day`, `dt.complete.date`, `dt.complete.progress`)<br>
-`/dt checkcomplete` - Check if player has completed (day/date/progress index) `dt.checkcomplete` (`dt.checkcomplete.day`, `dt.checkcomplete.date`, `dt.checkcomplete.progress`)<br>
+`/dt complete` - Complete (day/date/ptask index for this day) for player `dt.complete` (`dt.complete.day`, `dt.complete.date`, `dt.complete.task`)<br>
+`/dt checkcomplete` - Check if player has completed (day/date/task index) `dt.checkcomplete` (`dt.checkcomplete.day`, `dt.checkcomplete.date`, `dt.checkcomplete.task`)<br>
 `/dt checktasks` - Check tasks for specified date (if available) `dt.checktasks`<br>
 `/dt checkrewards` - Check rewards for specified date (if available) `dt.checkrewards`<br>
 `/dt taskpool` - Shows task pool `dt.taskpool`<br>

@@ -199,10 +199,10 @@ public class Commands implements CommandExecutor {
             }
             pt.getSourceCompletedTasks().put(date, threeTasks);
             sender.sendMessage(messages.getMessage("prefix") + " §aAdded " + date + " as completed date for " + p.getName() + "!");
-        } else if(args[1].equalsIgnoreCase("progress")) {
-            if(!pm.checkSenderPermission(sender, pm.getPermission("dt.complete.progress"))) return;
+        } else if(args[1].equalsIgnoreCase("task")) {
+            if(!pm.checkSenderPermission(sender, pm.getPermission("dt.complete.task"))) return;
             if(args.length < 4) {
-                sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt complete progress <nick> <index>");
+                sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt complete task <nick> <index>");
                 return;
             }
             Player p = pu.getPlayerByNick(args[2]);
@@ -215,7 +215,7 @@ public class Commands implements CommandExecutor {
             try {
                 index = Integer.parseInt(args[3]);
             } catch(NumberFormatException e) {
-                sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt complete progress <nick> <index>");
+                sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt complete task <nick> <index>");
                 return;
             }
             TaskManager tm = DailyTasks.getInstance().getTaskManager();
@@ -224,7 +224,7 @@ public class Commands implements CommandExecutor {
             dh.updatePlayerProgress(pt, index); // Save progress
             task.Complete(pt, index); // Complete task and save it
             tm.CheckRewards(pt); // Check rewards
-            sender.sendMessage(messages.getMessage("prefix") + " §aMarked progress " + index + " of this day as completed for " + p.getName() + "!");
+            sender.sendMessage(messages.getMessage("prefix") + " §aMarked task " + index + " of this day as completed for " + p.getName() + "!");
         }
     }
 
@@ -276,10 +276,10 @@ public class Commands implements CommandExecutor {
                 sender.sendMessage(messages.getMessage("prefix") + " §c" + p.getName() + " hasn't completed " + formatDate + "'s tasks!");
             }
             oldDataAttention(sender);
-        } else if(args[1].equalsIgnoreCase("progress")) {
-            if(!pm.checkSenderPermission(sender, pm.getPermission("dt.checkcomplete.progress"))) return;
+        } else if(args[1].equalsIgnoreCase("task")) {
+            if(!pm.checkSenderPermission(sender, pm.getPermission("dt.checkcomplete.task"))) return;
             if(args.length < 7) {
-                sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt checkcomplete progress <nick> <Y> <M> <D> <index>");
+                sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt checkcomplete task <nick> <Y> <M> <D> <index>");
                 return;
             }
             Player p = pu.getPlayerByNick(args[2]);
@@ -294,7 +294,7 @@ public class Commands implements CommandExecutor {
             try {
                 index = Integer.parseInt(args[6]);
             } catch(NumberFormatException e) {
-                sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt checkcomplete progress <nick> <Y> <M> <D> <index>");
+                sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt checkcomplete task <nick> <Y> <M> <D> <index>");
                 return;
             }
             if(completed.contains(index)) {
@@ -442,10 +442,10 @@ public class Commands implements CommandExecutor {
             case 2:
                 sender.sendMessage("§c/dt complete day §6<§cnick§6> §e- Complete this day for player (player will get reward)");
                 sender.sendMessage("§c/dt complete date §6<§cnick§6> <§cY§6> <§cM§6> <§cD§6> §e- Complete date for player (player won't get reward)");
-                sender.sendMessage("§c/dt complete progress §6<§cnick§6> <§cindex§6> §e- Complete progress for player (if max player will get reward)");
+                sender.sendMessage("§c/dt complete task §6<§cnick§6> <§cindex§6> §e- Complete task for player (if max player will get reward)");
                 sender.sendMessage("§c/dt checkcomplete day §6<§cnick§6> §6<§cD§6> §e- Check if player completed tasks that day");
                 sender.sendMessage("§c/dt checkcomplete date §6<§cnick§6> <§cY§6> <§cM§6> <§cD§6> §e- Check if player completed that date");
-                sender.sendMessage("§c/dt checkcomplete progress §6<§cnick§6> <§cY§6> <§cM§6> <§cD§6> <§cindex§6> §e- Check if player completed that date");
+                sender.sendMessage("§c/dt checkcomplete task §6<§cnick§6> <§cY§6> <§cM§6> <§cD§6> <§cindex§6> §e- Check if player completed that date");
                 break;
             case 3:
                 sender.sendMessage("§c/dt checktasks §6<§cY§6> <§cM§6> <§cD§6> §e- Check what tasks was/is in this date");
