@@ -441,7 +441,12 @@ public class DataHandler {
             }
             DailyTasks.getInstance().getTaskManager().getTaskPool().add(new TaskObject(yml.getString("tasks." + key + ".event"),
                     yml.getInt("tasks." + key + ".numberMin"), yml.getInt("tasks." + key + ".numberMax")));
-            DailyTasks.getInstance().getLogger().info("Loaded task: " + key);
+            if(section.getKeys(false).size() <= 16) {
+                DailyTasks.getInstance().getLogger().info("Loaded task: " + key);
+            }
+        }
+        if(section.getKeys(false).size() > 16) {
+            DailyTasks.getInstance().getLogger().info("Loaded (" + section.getKeys(false).size() + ") tasks!");
         }
     }
 
@@ -481,7 +486,13 @@ public class DataHandler {
                         yml.getInt(rewardType + "-rewards." + key + ".numberMax"),
                         (rewardType.equals("month")) )
                 );
-                DailyTasks.getInstance().getLogger().info("Loaded " + rewardType + " reward: " + key);
+                if(section.getKeys(false).size() <= 16) {
+                    DailyTasks.getInstance().getLogger().info("Loaded " + rewardType + " reward: " + key);
+                }
+            }
+            if(section.getKeys(false).size() > 16) {
+                DailyTasks.getInstance().getLogger().info("Loaded (" + section.getKeys(false).size() + ") "
+                        + rewardType + " rewards");
             }
         }
     }

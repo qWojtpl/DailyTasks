@@ -162,6 +162,12 @@ public class Events implements Listener {
         tm.Check((Player) event.getBreeder(), "breed " + event.getEntity().getType().name());
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onEat(PlayerItemConsumeEvent event) {
+        if(event.isCancelled()) return;
+        tm.Check(event.getPlayer(), "eat " + event.getItem().getType().name());
+    }
+
     // Method source: https://www.spigotmc.org/threads/get-accurate-crafting-result-from-shift-clicking.446520/
     private ItemStack getCraftedItemStack(CraftItemEvent event) {
         final ItemStack recipeResult = event.getRecipe().getResult();
