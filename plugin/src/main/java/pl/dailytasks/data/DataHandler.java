@@ -310,9 +310,9 @@ public class DataHandler {
         deleteOldData = yml.getBoolean("config.deleteOldData");
         if(saveTask != -1) {
             DailyTasks.getInstance().getServer().getScheduler().cancelTask(saveTask);
-            saveTask = DailyTasks.getInstance().getServer().getScheduler().scheduleSyncRepeatingTask(DailyTasks.getInstance(), () ->
-                saveYAML(true), 20L * saveInterval, 20L * saveInterval);
         }
+        saveTask = DailyTasks.getInstance().getServer().getScheduler().scheduleSyncRepeatingTask(DailyTasks.getInstance(), () ->
+                saveYAML(true), 20L * saveInterval, 20L * saveInterval);
     }
 
     public void saveTodayTasks() {

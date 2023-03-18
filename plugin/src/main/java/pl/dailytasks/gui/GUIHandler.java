@@ -61,13 +61,13 @@ public class GUIHandler {
                 continue;
             }
             Material m = Material.WHITE_CONCRETE;
-            String task = "";
+            String task;
             PlayerTasks pt = PlayerTasks.Create(player);
             if(day <= currentDay) {
                 TaskManager tm = DailyTasks.getInstance().getTaskManager();
                 task = messages.getMessage("tasks") + "%nl%";
                 if(tm.getTasks(day).size() == 0) {
-                    task = task + "§c" + messages.getMessage("day-without-task");
+                    task += "§c" + messages.getMessage("day-without-task");
                 } else {
                     int j = 0;
                     for (TaskObject to : tm.getTasks(day)) {
@@ -83,10 +83,10 @@ public class GUIHandler {
                 }
                 if (pt.checkIfCompletedDay(day)) {
                     m = Material.GREEN_CONCRETE;
-                    task = task + messages.getMessage("completed");
+                    task += messages.getMessage("completed");
                 } else if(day != currentDay) {
                     m = Material.RED_CONCRETE;
-                    task = task + messages.getMessage("not-completed");
+                    task += messages.getMessage("not-completed");
                 }
             } else {
                 task = messages.getMessage("locked-task");

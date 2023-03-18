@@ -253,9 +253,9 @@ public class Commands implements CommandExecutor {
                 return;
             }
             if(pt.checkIfCompletedDay(day)) {
-                sender.sendMessage(messages.getMessage("prefix") + " §a" + p.getName() + " completed " + day + " day's tasks!");
+                sender.sendMessage(messages.getMessage("prefix") + " §a" + p.getName() + " has completed " + day + " day's tasks!");
             } else {
-                sender.sendMessage(messages.getMessage("prefix") + " §c" + p.getName() + " doesn't completed " + day + " day's tasks!");
+                sender.sendMessage(messages.getMessage("prefix") + " §c" + p.getName() + " hasn't completed " + day + " day's tasks!");
             }
         } else if(args[1].equalsIgnoreCase("date")) {
             if(!pm.checkSenderPermission(sender, pm.getPermission("dt.checkcomplete.date"))) return;
@@ -271,9 +271,9 @@ public class Commands implements CommandExecutor {
             PlayerTasks pt = PlayerTasks.Create(p);
             String formatDate = args[3] + "/" + args[4] + "/" + args[5];
             if(pt.checkIfCompletedDayByDate(formatDate)) {
-                sender.sendMessage(messages.getMessage("prefix") + " §a" + p.getName() + " completed " + formatDate + "'s tasks!");
+                sender.sendMessage(messages.getMessage("prefix") + " §a" + p.getName() + " has completed " + formatDate + "'s tasks!");
             } else {
-                sender.sendMessage(messages.getMessage("prefix") + " §c" + p.getName() + " doesn't completed " + formatDate + "'s tasks!");
+                sender.sendMessage(messages.getMessage("prefix") + " §c" + p.getName() + " hasn't completed " + formatDate + "'s tasks!");
             }
             oldDataAttention(sender);
         } else if(args[1].equalsIgnoreCase("progress")) {
@@ -289,11 +289,21 @@ public class Commands implements CommandExecutor {
             }
             PlayerTasks pt = PlayerTasks.Create(p);
             String formatDate = args[3] + "/" + args[4] + "/" + args[5];
-            /*if(pt.checkIfCompletedDayByDate(formatDate)) {
-                sender.sendMessage(messages.getMessage("prefix") + " §a" + p.getName() + " completed " + formatDate + "'s tasks!");
+            List<Integer> completed = pt.getSourceCompletedTasks().getOrDefault(formatDate, new ArrayList<>());
+            int index;
+            try {
+                index = Integer.parseInt(args[6]);
+            } catch(NumberFormatException e) {
+                sender.sendMessage(messages.getMessage("prefix") + " §cCorrect usage: /dt checkcomplete progress <nick> <Y> <M> <D> <index>");
+                return;
+            }
+            if(completed.contains(index)) {
+                sender.sendMessage(messages.getMessage("prefix") + " §a" + p.getName() +
+                        " has completed " + formatDate + "'s task of index §6" + index + "§a!");
             } else {
-                sender.sendMessage(messages.getMessage("prefix") + " §c" + p.getName() + " doesn't completed " + formatDate + "'s tasks!");
-            }*/
+                sender.sendMessage(messages.getMessage("prefix") + " §c" + p.getName() +
+                        " hasn't completed " + formatDate + "'s task of index §6" + index + "§c!");
+            }
             oldDataAttention(sender);
         } else {
             ShowHelp(sender, 2);

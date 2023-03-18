@@ -1,4 +1,15 @@
 config:
+
+  # When set to true old data (from previous or older month) will be deleted from local file
+  # When set to false all data will be keep in local data file
+  # Remember that you can't see old tasks, old player's progress when old data is deleted
+
   deleteOldData: false
+
+  # Set interval to save all files automatically
+
   saveInterval: 300
+
+  # When set to true then information on save will be printed to console
+
   logSave: true
