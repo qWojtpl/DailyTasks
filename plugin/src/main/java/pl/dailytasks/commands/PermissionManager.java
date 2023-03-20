@@ -54,7 +54,12 @@ public class PermissionManager {
         registerPermission("dt.checkrewards", "Check what rewards was/is in that date in DailyTasks");
         registerPermission("dt.taskpool", "See task pool in DailyTasks");
         registerPermission("dt.rewardpool", "See reward pool in DailyTasks");
+        registerPermission("dt.reserve.task", "Reserve day tasks for specific date in DailyTasks");
+        registerPermission("dt.reserve.reward.day", "Reserve day reward for specific date in DailyTasks");
+        registerPermission("dt.reserve.reward.month", "Reserve month reward for specific date in DailyTasks");
         registerPermission("dt.add.task", "Add task to task pool in DailyTasks");
+        registerPermission("dt.add.reward.day", "Add day reward to reward pool in DailyTasks");
+        registerPermission("dt.add.reward.month", "Add month reward to reward pool in DailyTasks");
     }
 
 }

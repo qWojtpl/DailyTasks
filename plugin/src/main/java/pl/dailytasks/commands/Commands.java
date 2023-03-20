@@ -172,7 +172,7 @@ public class Commands implements CommandExecutor {
             int i = 0;
             TaskManager tm = DailyTasks.getInstance().getTaskManager();
             for(TaskObject to : tm.getTodayTasks()) {
-                pt.getProgress().set(i, to.currentRandom); // Set progress to max
+                pt.getProgress().set(i, to.getCurrentRandom()); // Set progress to max
                 dh.updatePlayerProgress(pt, i); // Save progress
                 to.Complete(pt, i); // Complete task
                 i++;
@@ -220,7 +220,7 @@ public class Commands implements CommandExecutor {
             }
             TaskManager tm = DailyTasks.getInstance().getTaskManager();
             TaskObject task = tm.getTodayTasks().get(index); // Get task from index
-            pt.getProgress().set(index, task.currentRandom); // Set progress to max
+            pt.getProgress().set(index, task.getCurrentRandom()); // Set progress to max
             dh.updatePlayerProgress(pt, index); // Save progress
             task.Complete(pt, index); // Complete task and save it
             tm.CheckRewards(pt); // Check rewards
@@ -324,7 +324,7 @@ public class Commands implements CommandExecutor {
                 sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
                 sender.sendMessage("§eShowing tasks for: " + date);
                 for (TaskObject to : tasks) {
-                    sender.sendMessage("§6->§e " + to.initializedEvent);
+                    sender.sendMessage("§6->§e " + to.getInitializedEvent());
                 }
                 sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
                 return;
@@ -346,7 +346,7 @@ public class Commands implements CommandExecutor {
         if(tm.getSourceDayReward().containsKey(date)) {
             RewardObject reward = tm.getSourceDayReward().get(date);
             sender.sendMessage("§eShowing daily reward for: " + date);
-            sender.sendMessage("§6->§e " + reward.initializedCommand);
+            sender.sendMessage("§6->§e " + reward.getInitializedCommand());
         } else {
             sender.sendMessage("§cDaily reward is not initialized, wait for next day or use fake calendar");
         }
@@ -354,7 +354,7 @@ public class Commands implements CommandExecutor {
         if(tm.getSourceMonthReward().containsKey(month)) {
             RewardObject monthReward = tm.getSourceMonthReward().get(month);
             sender.sendMessage("§eShowing monthly reward for: " + month);
-            sender.sendMessage("§6->§e " + monthReward.initializedCommand);
+            sender.sendMessage("§6->§e " + monthReward.getInitializedCommand());
         } else {
             sender.sendMessage("§cMonthly reward is not initialized, wait for next day or use fake calendar");
         }
@@ -367,8 +367,8 @@ public class Commands implements CommandExecutor {
         sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
         sender.sendMessage("§eShowing task pool:");
         for(TaskObject to : DailyTasks.getInstance().getTaskManager().getTaskPool()) {
-            sender.sendMessage("§6->§e " + to.event);
-            sender.sendMessage("§6    => §eMin: §a" + to.min + "§e, max: §a" + to.max);
+            sender.sendMessage("§6->§e " + to.getEvent());
+            sender.sendMessage("§6    => §eMin: §a" + to.getMin() + "§e, max: §a" + to.getMax());
         }
         sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
     }
@@ -379,17 +379,49 @@ public class Commands implements CommandExecutor {
         sender.sendMessage("§eShowing reward pool:");
         for(RewardObject ro : DailyTasks.getInstance().getTaskManager().getRewardPool()) {
             String info = "§aDAILY";
-            if(ro.isMonthly) {
+            if(ro.isMonthly()) {
                 info = "§2MONTHLY";
             }
-            sender.sendMessage("§6->§e " + ro.command + " §6(" + info + "§6)");
-            sender.sendMessage("§6    => §eMin: §a" + ro.min + "§e, max: §a" + ro.max);
+            sender.sendMessage("§6->§e " + ro.getCommand() + " §6(" + info + "§6)");
+            sender.sendMessage("§6    => §eMin: §a" + ro.getMin() + "§e, max: §a" + ro.getMax());
         }
         sender.sendMessage("§6<=============== §r§cDailyTasks §6===============>");
     }
 
     private void c_Reserve(CommandSender sender, String[] args) {
-
+        if(args.length < 2) {
+            ShowHelp(sender, 3);
+            return;
+        }
+        if(args[1].equalsIgnoreCase("task")) {
+            if(!pm.checkSenderPermission(sender, pm.getPermission("dt.reserve.task"))) return;
+            String correctUsage = messages.getMessage("prefix") +
+                    " §cCorrect usage: /dt reserve task <Y> <M> <D> <taskID> <taskID> <taskID>";
+            if(args.length < 8) {
+                sender.sendMessage(correctUsage);
+                return;
+            }
+            TaskManager tm = DailyTasks.getInstance().getTaskManager();
+            int c = 0;
+            List<TaskObject> tasks = new ArrayList<>();
+            for(TaskObject to : tm.getTaskPool()) {
+                if(to.getId().equalsIgnoreCase(args[c+5])) {
+                    to.Reinitialize();
+                    tasks.add(to);
+                    c++;
+                }
+                if(c == 3) break;
+            }
+            if(c != 3) {
+                sender.sendMessage(messages.getMessage("prefix") + " §cCannot find 3 different tasks from query...");
+                return;
+            }
+            String date = args[2] + "/" + args[3] + "/" + args[4];
+            tm.getSourceTaskList().put(date, tasks);
+            dh.setTaskHistory(date, tasks);
+            sender.sendMessage(messages.getMessage("prefix") +
+                    " §aReserved tasks " + args[5] + ", " + args[6] + ", " + args[7] + " for date " + date + "!");
+        }
     }
 
     private void c_Add(CommandSender sender, String[] args) {
@@ -413,17 +445,51 @@ public class Commands implements CommandExecutor {
             }
             String event = "";
             for(int i = 5; i < args.length; i++) {
-                event = event + args[i];
+                event += args[i];
                 if(i != args.length-1) {
-                    event = event + " ";
+                    event += " ";
                 }
             }
-            TaskObject to = new TaskObject(event, min, max);
+            TaskObject to = new TaskObject(args[2], event, min, max);
             DailyTasks.getInstance().getTaskManager().getTaskPool().add(to);
             dh.addTaskToPool(to, args[2]);
             sender.sendMessage(messages.getMessage("prefix") + " §aAdded " + args[2] + " §ato task pool! If this task existed - overwritten.");
         } else if(args[1].equalsIgnoreCase("reward")) {
-
+            String correctUsage = messages.getMessage("prefix") + " §cCorrect usage: /dt add reward <day/month> <id> <min> <max> <reward>";
+            if(args.length < 3) {
+                sender.sendMessage(correctUsage);
+                return;
+            }
+            if(args[2].equalsIgnoreCase("day") || args[2].equalsIgnoreCase("month")) {
+                if(!pm.checkSenderPermission(sender, pm.getPermission("dt.add.reward." + args[2]))) return;
+                if(args.length < 7) {
+                    sender.sendMessage(correctUsage);
+                    return;
+                }
+                int min, max;
+                try {
+                    min = Integer.parseInt(args[4]);
+                    max = Integer.parseInt(args[5]);
+                } catch(NumberFormatException e) {
+                    sender.sendMessage(correctUsage);
+                    return;
+                }
+                String cmd = "";
+                for(int i = 6; i < args.length; i++) {
+                    cmd += args[i];
+                    if(i != args.length-1) {
+                        cmd += " ";
+                    }
+                }
+                boolean isMonthly = args[2].equalsIgnoreCase("month");
+                RewardObject ro = new RewardObject(args[3], cmd, min, max, isMonthly);
+                DailyTasks.getInstance().getTaskManager().getRewardPool().add(ro);
+                dh.addRewardToPool(ro, args[3], isMonthly);
+                sender.sendMessage(messages.getMessage("prefix") +
+                        " §aAdded " + args[3] + " §ato reward pool! (" + args[2] + ") If this task existed - overwritten.");
+            } else {
+                sender.sendMessage(correctUsage);
+            }
         }
     }
 
@@ -453,10 +519,10 @@ public class Commands implements CommandExecutor {
                 sender.sendMessage("§c/dt taskpool §e- See task pool");
                 sender.sendMessage("§c/dt rewardpool §e- See reward pool");
                 sender.sendMessage("§c/dt reserve task §6<§cY§6> <§cM§6> <§cD§6> <taskID> <taskID> <taskID> §e- Reserve tasks for date");
-                sender.sendMessage("§c/dt reserve reward day §6<§cY§6> <§cM§6> <§cD§6> <reward> §e- Reserve reward for date");
+                sender.sendMessage("§c/dt reserve reward day §6<§cY§6> <§cM§6> <§cD§6> <rewardID> §e- Reserve reward for date");
                 break;
             case 4:
-                sender.sendMessage("§c/dt reserve reward month §6<§cY§6> <§cM§6> <reward> §e- Reserve reward for month");
+                sender.sendMessage("§c/dt reserve reward month §6<§cY§6> <§cM§6> <rewardID> §e- Reserve reward for month");
                 sender.sendMessage("§c/dt add task §6<§cmin§6> <§cmax§6> <§ctask§6> §e- Add task to task pool");
                 sender.sendMessage("§c/dt add reward day §6<§ccommand§6> §e- Add reward to reward pool (for days)");
                 sender.sendMessage("§c/dt add reward month §6<§ccommand§6> §e- Add reward to reward pool (for month)");

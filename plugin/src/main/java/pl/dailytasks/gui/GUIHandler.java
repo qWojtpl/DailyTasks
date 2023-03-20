@@ -72,9 +72,9 @@ public class GUIHandler {
                     int j = 0;
                     for (TaskObject to : tm.getTasks(day)) {
                         int playerProgress = pt.getProgressByDay(day).get(j);
-                        int maxProgress = to.currentRandom;
+                        int maxProgress = to.getCurrentRandom();
                         String progress = playerProgress + "/" + maxProgress;
-                        task += "§2" + to.initializedEvent + " " + progress + "%nl%";
+                        task += "§2" + to.getInitializedEvent() + " " + progress + "%nl%";
                         j++;
                     }
                 }

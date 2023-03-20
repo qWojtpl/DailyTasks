@@ -150,7 +150,7 @@ public class CommandHelper implements TabCompleter {
                 if(args.length == 2) {
                     completions.add("task");
                     completions.add("reward");
-                } else if(args[1].equalsIgnoreCase("reward")) {
+                } else if(args[1].equalsIgnoreCase("reward") && args.length == 3) {
                     completions.add("day");
                     completions.add("month");
                 }

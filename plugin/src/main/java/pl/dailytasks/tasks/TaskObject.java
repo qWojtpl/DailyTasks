@@ -1,18 +1,22 @@
 package pl.dailytasks.tasks;
 
+import lombok.Getter;
 import pl.dailytasks.DailyTasks;
 import pl.dailytasks.util.DateManager;
 import pl.dailytasks.util.RandomNumber;
 
+@Getter
 public class TaskObject {
 
-    public String event;
-    public String initializedEvent;
-    public int min;
-    public int max;
-    public int currentRandom;
+    private final String id;
+    private final String event;
+    private String initializedEvent;
+    private final int min;
+    private final int max;
+    private int currentRandom;
 
-    public TaskObject(String event, int min, int max) {
+    public TaskObject(String id, String event, int min, int max) {
+        this.id = id;
         this.event = event;
         this.min = min;
         this.max = max;

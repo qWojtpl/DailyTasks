@@ -38,7 +38,7 @@ public class TaskManager {
         if(pt.checkIfCompletedDay(dm.getDay())) return;
         for(TaskObject to : getTodayTasks()) {
             i++;
-            String[] taskEvent = to.initializedEvent.split(" ");
+            String[] taskEvent = to.getInitializedEvent().split(" ");
             String[] givenEvent = checkable.split(" ");
             if(!taskEvent[0].equalsIgnoreCase(givenEvent[0])) {
                 continue;
@@ -51,7 +51,7 @@ public class TaskManager {
             }
             int progress = pt.getProgress().get(i);
             progress++;
-            if(progress >= to.currentRandom) {
+            if(progress >= to.getCurrentRandom()) {
                 to.Complete(pt, i);
             }
             pt.getProgress().set(i, progress);
@@ -65,27 +65,27 @@ public class TaskManager {
         int max = 0;
         int j = 0;
         for(TaskObject to2 : getTodayTasks()) {
-            max += to2.currentRandom;
+            max += to2.getCurrentRandom();
             playerSum += pt.getProgress().get(j);
             j++;
         }
         if(playerSum >= max) {
             pt.getPlayer().playSound(pt.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, 1.0F, 1.0F);
             DailyTasks.getInstance().getServer().dispatchCommand(DailyTasks.getInstance().getServer().getConsoleSender(),
-                    getTodayReward().initializedCommand.replace("%player%", pt.getPlayer().getName()));
+                    getTodayReward().getInitializedCommand().replace("%player%", pt.getPlayer().getName()));
             Messages messages = DailyTasks.getInstance().getMessages();
             String[] splitMessage = messages.getMessage("complete-day").split("%nl%");
             DateManager dm = DailyTasks.getInstance().getDateManager();
             for(String message : splitMessage) {
-                pt.getPlayer().sendMessage(MessageFormat.format(message, dm.getDay(), getTodayReward().initializedCommand));
+                pt.getPlayer().sendMessage(MessageFormat.format(message, dm.getDay(), getTodayReward().getInitializedCommand()));
             }
             if(pt.checkIfCompletedMonth()) {
                 pt.getPlayer().playSound(pt.getPlayer().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.0F, 1.0F);
                 DailyTasks.getInstance().getServer().dispatchCommand(DailyTasks.getInstance().getServer().getConsoleSender(),
-                        getThisMonthReward().initializedCommand.replace("%player%", pt.getPlayer().getName()));
+                        getThisMonthReward().getInitializedCommand().replace("%player%", pt.getPlayer().getName()));
                 splitMessage = messages.getMessage("complete-month").split("%nl%");
                 for (String message : splitMessage) {
-                    pt.getPlayer().sendMessage(MessageFormat.format(message, dm.getMonth(), getThisMonthReward().initializedCommand));
+                    pt.getPlayer().sendMessage(MessageFormat.format(message, dm.getMonth(), getThisMonthReward().getInitializedCommand()));
                 }
             }
         }
@@ -102,7 +102,7 @@ public class TaskManager {
             if(pool.size() == 0) break;
             int index = RandomNumber.randomInt(0, pool.size()-1);
             TaskObject to = pool.get(index);
-            getTodayTasks().add(new TaskObject(to.event, to.min, to.max));
+            getTodayTasks().add(new TaskObject(to.getId(), to.getEvent(), to.getMin(), to.getMax()));
             pool.remove(index);
         }
         DateManager dm = DailyTasks.getInstance().getDateManager();
@@ -116,13 +116,14 @@ public class TaskManager {
         List<RewardObject> allPool = new ArrayList<>(getRewardPool());
         List<RewardObject> pool = new ArrayList<>();
         for(RewardObject ro : allPool) {
-            if(!ro.isMonthly) pool.add(ro);
+            if(!ro.isMonthly()) pool.add(ro);
         }
         if(pool.size() == 0 || getTodayReward() != null) return;
         DailyTasks.getInstance().getLogger().info("Randomizing daily reward!");
         RewardObject schema = pool.get(RandomNumber.randomInt(0, pool.size()-1));
         DateManager dm = DailyTasks.getInstance().getDateManager();
-        dayRewardList.put(dm.getFormattedDate("%Y/%M/%D"), new RewardObject(schema.command, schema.min, schema.max, schema.isMonthly));
+        dayRewardList.put(dm.getFormattedDate("%Y/%M/%D"),
+                new RewardObject(schema.getId(), schema.getCommand(), schema.getMin(), schema.getMax(), schema.isMonthly()));
         dh.saveTodayReward();
     }
 
@@ -130,13 +131,14 @@ public class TaskManager {
         List<RewardObject> allPool = new ArrayList<>(getRewardPool());
         List<RewardObject> pool = new ArrayList<>();
         for(RewardObject ro : allPool) {
-            if(ro.isMonthly) pool.add(ro);
+            if(ro.isMonthly()) pool.add(ro);
         }
         if(pool.size() == 0 || getThisMonthReward() != null) return;
         DailyTasks.getInstance().getLogger().info("Randomizing monthly reward!");
         RewardObject schema = pool.get(RandomNumber.randomInt(0, pool.size()-1));
         DateManager dm = DailyTasks.getInstance().getDateManager();
-        monthRewardList.put(dm.getFormattedDate("%Y/%M"), new RewardObject(schema.command, schema.min, schema.max, schema.isMonthly));
+        monthRewardList.put(dm.getFormattedDate("%Y/%M"),
+                new RewardObject(schema.getId(), schema.getCommand(), schema.getMin(), schema.getMax(), schema.isMonthly()));
         dh.saveMonthlyReward();
     }
 

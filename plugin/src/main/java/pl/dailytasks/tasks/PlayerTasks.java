@@ -47,7 +47,7 @@ public class PlayerTasks {
     public boolean checkIfCompletedDayTask(int index) {
         DateManager dm = DailyTasks.getInstance().getDateManager();
         if(completedTasks.containsKey(dm.getFormattedDate("%Y/%M/%D"))) {
-            return (getProgress().get(index) >= DailyTasks.getInstance().getTaskManager().getTodayTasks().get(index).currentRandom);
+            return (getProgress().get(index) >= DailyTasks.getInstance().getTaskManager().getTodayTasks().get(index).getCurrentRandom());
         }
         return false;
     }
