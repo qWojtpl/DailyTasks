@@ -74,7 +74,12 @@ public class GUIHandler {
                         int playerProgress = pt.getProgressByDay(day).get(j);
                         int maxProgress = to.getCurrentRandom();
                         String progress = playerProgress + "/" + maxProgress;
-                        task += "§2" + to.getInitializedEvent() + " " + progress + "%nl%";
+                        String event = to.getInitializedEvent();
+                        String[] eventSplit = event.split(" ");
+                        if(eventSplit[2].equalsIgnoreCase("*")) {
+                            eventSplit[2] = messages.getTranslation("any");
+                        }
+                        task += "§2" + messages.getTranslation(eventSplit[0]) + " " + eventSplit[2] + ": " + progress + "%nl%";
                         j++;
                     }
                 }

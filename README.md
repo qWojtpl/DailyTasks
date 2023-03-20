@@ -15,6 +15,8 @@
 
 # Configuration
 
+
+
 # Commands & Permissions
 
 `/dt` - Shows this month tasks, permission to complete any daily task `dt.use`<br>

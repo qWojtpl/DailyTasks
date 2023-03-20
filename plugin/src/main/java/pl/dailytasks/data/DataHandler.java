@@ -5,7 +5,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.yaml.snakeyaml.Yaml;
 import pl.dailytasks.DailyTasks;
 import pl.dailytasks.gui.GUIHandler;
 import pl.dailytasks.tasks.PlayerTasks;
@@ -408,11 +407,19 @@ public class DataHandler {
         }
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(messageFile);
         ConfigurationSection section = yml.getConfigurationSection("messages");
-        if(section == null) return;
         Messages messages = DailyTasks.getInstance().getMessages();
-        messages.clearMessages();
-        for(String key : section.getKeys(false)) {
-            messages.addMessage(key, yml.getString("messages." + key));
+        if(section != null) {
+            messages.clearMessages();
+            for(String key : section.getKeys(false)) {
+                messages.addMessage(key, yml.getString("messages." + key));
+            }
+        }
+        section = yml.getConfigurationSection("event-translation");
+        if(section != null) {
+            messages.clearTranslations();
+            for(String key : section.getKeys(false)) {
+                messages.addTranslation(key, yml.getString("event-translation." + key));
+            }
         }
     }
 
