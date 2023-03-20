@@ -476,6 +476,24 @@ public class DataHandler {
         }
     }
 
+    public void setRewardHistory(String date, RewardObject reward) {
+        File pluginData = createPluginData();
+        YamlConfiguration yml = YamlConfiguration.loadConfiguration(pluginData);
+        String key;
+        if(reward.isMonthly()) {
+            key = "month-reward-history.";
+        } else {
+            key = "day-reward-history.";
+        }
+        yml.set(key + date, reward.getInitializedCommand());
+        try {
+            yml.save(pluginData);
+        } catch(IOException e) {
+            DailyTasks.getInstance().getLogger().info("Cannot save pluginData.yml");
+            DailyTasks.getInstance().getLogger().info("IO exception: " + e);
+        }
+    }
+
     public void addTaskToPool(TaskObject to, String id) {
         File tasksFile = getTaskFile();
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(tasksFile);

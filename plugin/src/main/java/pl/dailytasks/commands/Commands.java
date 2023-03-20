@@ -421,6 +421,51 @@ public class Commands implements CommandExecutor {
             dh.setTaskHistory(date, tasks);
             sender.sendMessage(messages.getMessage("prefix") +
                     " §aReserved tasks " + args[5] + ", " + args[6] + ", " + args[7] + " for date " + date + "!");
+        } else if(args[1].equalsIgnoreCase("reward")) {
+            String correctUsage = messages.getMessage("prefix") + " §cCorrect usage: /dt reserve reward <day/month> <Y> <M> <D> <rewardID>";
+            if(args.length < 3) {
+                sender.sendMessage(correctUsage);
+                return;
+            }
+            if(args[2].equalsIgnoreCase("day") || args[2].equalsIgnoreCase("month")) {
+                if(!pm.checkSenderPermission(sender, pm.getPermission("dt.reserve.reward." + args[2]))) return;
+                if(args.length < 7) {
+                    sender.sendMessage(correctUsage);
+                    return;
+                }
+                TaskManager tm = DailyTasks.getInstance().getTaskManager();
+                RewardObject reward = null;
+                boolean monthlyReward = args[2].equalsIgnoreCase("month");
+                for(RewardObject ro : tm.getRewardPool()) {
+                    if(ro.getId().equalsIgnoreCase(args[6])) {
+                        if (ro.isMonthly() && monthlyReward) {
+                            reward = ro;
+                        } else if (!ro.isMonthly() && !monthlyReward) {
+                            reward = ro;
+                        }
+                    }
+                }
+                if(reward == null) {
+                    sender.sendMessage(messages.getMessage("prefix") + " §cCannot find any reward with this ID...");
+                    return;
+                }
+                String date;
+                String type;
+                if(monthlyReward) {
+                    date = args[3] + "/" + args[4];
+                    type = "month";
+                    tm.getSourceMonthReward().put(date, reward);
+                } else {
+                    date = args[3] + "/" + args[4] + "/" + args[5];
+                    type = "day";
+                    tm.getSourceDayReward().put(date, reward);
+                }
+                dh.setRewardHistory(date, reward);
+                sender.sendMessage(messages.getMessage("prefix") +
+                        " §aReserved reward " + reward.getId() + " (" + type + ") for date " + date + "!");
+            } else {
+                sender.sendMessage(correctUsage);
+            }
         }
     }
 
@@ -518,11 +563,11 @@ public class Commands implements CommandExecutor {
                 sender.sendMessage("§c/dt checkrewards §6<§cY§6> <§cM§6> <§cD§6> §e- Check what tasks was/is in this date");
                 sender.sendMessage("§c/dt taskpool §e- See task pool");
                 sender.sendMessage("§c/dt rewardpool §e- See reward pool");
-                sender.sendMessage("§c/dt reserve task §6<§cY§6> <§cM§6> <§cD§6> <taskID> <taskID> <taskID> §e- Reserve tasks for date");
-                sender.sendMessage("§c/dt reserve reward day §6<§cY§6> <§cM§6> <§cD§6> <rewardID> §e- Reserve reward for date");
+                sender.sendMessage("§c/dt reserve task §6<§cY§6> <§cM§6> <§cD§6> <§ctaskID§6> <§ctaskID§6> <§ctaskID§6> §e- Reserve tasks for date");
+                sender.sendMessage("§c/dt reserve reward day §6<§cY§6> <§cM§6> <§cD§6> <§crewardID§6> §e- Reserve reward for date");
                 break;
             case 4:
-                sender.sendMessage("§c/dt reserve reward month §6<§cY§6> <§cM§6> <rewardID> §e- Reserve reward for month");
+                sender.sendMessage("§c/dt reserve reward month §6<§cY§6> <§cM§6> <§cD§6> <§crewardID§6> §e- Reserve reward for month");
                 sender.sendMessage("§c/dt add task §6<§cmin§6> <§cmax§6> <§ctask§6> §e- Add task to task pool");
                 sender.sendMessage("§c/dt add reward day §6<§ccommand§6> §e- Add reward to reward pool (for days)");
                 sender.sendMessage("§c/dt add reward month §6<§ccommand§6> §e- Add reward to reward pool (for month)");
