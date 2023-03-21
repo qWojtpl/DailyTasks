@@ -404,13 +404,15 @@ public class Commands implements CommandExecutor {
             TaskManager tm = DailyTasks.getInstance().getTaskManager();
             int c = 0;
             List<TaskObject> tasks = new ArrayList<>();
-            for(TaskObject to : tm.getTaskPool()) {
-                if(to.getId().equalsIgnoreCase(args[c+5])) {
-                    to.Reinitialize();
-                    tasks.add(to);
-                    c++;
+            for(int i = 0; i < 3; i++) {
+                for (TaskObject to : tm.getTaskPool()) {
+                    if (to.getId().equalsIgnoreCase(args[i+5])) {
+                        to.Reinitialize();
+                        tasks.add(to);
+                        c++;
+                    }
+                    if (c == 3) break;
                 }
-                if(c == 3) break;
             }
             if(c != 3) {
                 sender.sendMessage(messages.getMessage("prefix") + " §cCannot find 3 different tasks from query...");
