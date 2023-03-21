@@ -79,7 +79,8 @@ public class GUIHandler {
                         if(eventSplit[2].equalsIgnoreCase("*")) {
                             eventSplit[2] = messages.getTranslation("any");
                         }
-                        task += "§2" + messages.getTranslation(eventSplit[0]) + " " + eventSplit[2] + ": " + progress + "%nl%";
+                        task += messages.getMessage("task-field-prefix") + messages.getTranslation(eventSplit[0])
+                                + " " + eventSplit[2] + ": " + progress + "%nl%";
                         j++;
                     }
                 }

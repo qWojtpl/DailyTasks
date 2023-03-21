@@ -3,6 +3,7 @@ messages:
   title: "Daily tasks"
   day: "§6§lDay §c§l"
   tasks: "§cTasks:"
+  task-field-prefix: "§2"
   day-without-task: "§cThis day doesn't have any tasks! ;D"
   info-title: "§6§lInformation"
   info-description: "§aComplete daily tasks to get rewards.%nl%§aComplete all monthly tasks to get special reward!"
