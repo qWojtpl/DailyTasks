@@ -17,19 +17,19 @@
 
 ```java
 - join        // Join event, eg. join 1 server
-- kill       // Kill event, eg. kill 20 zombie
+- kill        // Kill event, eg. kill 20 zombie
 - break       // Break block event, eg. break 64 dirt
 - place       // Place block event, eg. place 128 spruce_log
-- pickup     // Pickup (how many items, not how many times) item event, eg. pickup 32 slime_ball
-- T_pickup   // Pickup (how many times, not how many items) item event, eg. T_pickup 5 dirt
-- drop       // Drop (how many items, not how many times) item event, eg. drop 64 stone
-- T_drop     // Drop (how many times, not how many items) item event, eg. T_drop 10 diamond_sword
-- craft      // Craft (how many items, not how many times) item event, eg. craft 1 cake
-- T_craft    // Craft (how many times, now how many items) item event, eg. craft 10 diamond_pickaxe
-- enchant    // Enchant item event, eg. enchant 1 diamond_sword
+- pickup      // Pickup (how many items, not how many times) item event, eg. pickup 32 slime_ball
+- T_pickup    // Pickup (how many times, not how many items) item event, eg. T_pickup 5 dirt
+- drop        // Drop (how many items, not how many times) item event, eg. drop 64 stone
+- T_drop      // Drop (how many times, not how many items) item event, eg. T_drop 10 diamond_sword
+- craft       // Craft (how many items, not how many times) item event, eg. craft 1 cake
+- T_craft     // Craft (how many times, now how many items) item event, eg. craft 10 diamond_pickaxe
+- enchant     // Enchant item event, eg. enchant 1 diamond_sword
 - fish        // Fish (using fishing rod) event, eg. fish 64 pufferfish
 - catch       // Catch (using fishing rod) entity, eg. catch 10 wolf
-- shoot      // Shoot event, eg. shoot 20 bow
+- shoot       // Shoot event, eg. shoot 20 bow
 - throw       // Throw event, eg. throw 64 snowball, throw 10 trident
 - command     // Send command event (without arguments), eg. command 30 /ae
 - chat        // Send chat message event, eg. chat 10 Wiggle-Wiggle
@@ -91,6 +91,39 @@ tasks:
     event: "break %rdm% *"
     numberMin: 30
     numberMax: 60
+```
+
+</details>
+
+<details><summary>reward-pool.yml</summary>
+
+<br>
+
+**You need at least 1 day reward and 1 month reward in reward pool to start this plugin**<br> 
+`Use %rdm% for random number`<br>
+`Use %player% for player`<br>
+
+`enabled` - If set to true reward is enabled and can be loaded into reward pool<br>
+`command` - This command is executing by console when player is getting reward<br>
+`numberMin` - Min number for random number (%rdm%)<br>
+`numberMax` - Max number for random number (%rdm%)<br>
+
+## Default configuration:
+
+```yml
+day-rewards:
+  "0":
+    enabled: true
+    command: "give %player% minecraft:emerald %rdm%"
+    numberMin: 10
+    numberMax: 15
+
+month-rewards:
+  "0":
+    enabled: true
+    command: "give %player% minecraft:diamond_block %rdm%"
+    numberMin: 10
+    numberMax: 32
 ```
 
 </details>
