@@ -5,6 +5,7 @@
 # DailyTasks
 
 <p>Add daily tasks to your Minecraft server</p>
+<p>Plugin every day randomizes 3 task to complete - if player will complete all tasks in month, then player will get special month reward</p>
 <p>Tested Minecraft versions: </p>
 
 `1.18.2` `1.19.3`
@@ -124,6 +125,62 @@ month-rewards:
     command: "give %player% minecraft:diamond_block %rdm%"
     numberMin: 10
     numberMax: 32
+```
+
+</details>
+
+<details><summary>pluginData.yml</summary>
+
+**Manually modifying this file could cause plugin crashes!**<br>
+**DO NOT EDIT IT IF YOU DON'T KNOW WHAT ARE YOU DOING!**<br>
+
+## data:
+
+`lastRandomized` - Specifies last date when tasks and rewards was randomized. If this date doesn't equals actual date, the new tasks (and rewards) will be randomized<br>
+`fakeCalendar` - Fakecalendar info. If you're using fake calendar then actual fakecalendar date will be saved in this field<br>
+
+```yml
+data:
+  lastRandomized: 2023/3/23
+  fakeCalendar: 2023 3 23 0 16 06
+```
+
+## history:
+
+`#date` - Certain date contains list of 3 items (tasks) which have to been completed in this date. You can modify them, doesn't depend on task pool<br>
+
+```yml
+history:
+  2023/3/22:
+  - break 10 obsidian
+  - kill 12 zombie
+  - breed 5 cow
+  2023/3/23:
+  - place 128 *
+  - eat 32 apple
+  - fish 5 cod
+```
+
+## day-reward-history:
+
+`#date` - Date is a key, value contains command which will be executed when player complete all tasks in this day. Can be modified, doesn't depend on reward pool<br>
+
+```yml
+day-reward-history:
+  2023/3/22: give %player% emerald 16
+  2023/3/23: give %player% diamond 32
+  2023/3/24: say %player% completed today's tasks!
+```
+
+## month-reward-history
+
+`#month` - Year/month is a key, value contains command which will be executed when player complete all tasks in this month. Can be modified, doesn't depend on reward pool<br>
+
+```yml
+month-reward-history:
+  2023/2: give %player% diamond_block 32
+  2023/3: give %player% netherite_ingot 48
+  2023/4: give %player% emerald_block 64
 ```
 
 </details>
