@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://media.discordapp.net/attachments/816647374239694849/1082077755451125811/57909dd196ba9e180fda889a79e662f468e299abbe166ffe875bf59d7425202e88937ffb57ad5c879dbd77fbaa4992b20175f2f8a6faff19ec765d2980de3079d0fcf6ec45967565d9fab2ff.png">
+    <img src="images/logo.png">
 </p>
 
 # DailyTasks
