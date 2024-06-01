@@ -26,7 +26,7 @@
 - drop        // Drop (how many items, not how many times) item event, eg. drop 64 stone
 - T_drop      // Drop (how many times, not how many items) item event, eg. T_drop 10 diamond_sword
 - craft       // Craft (how many items, not how many times) item event, eg. craft 1 cake
-- T_craft     // Craft (how many times, now how many items) item event, eg. craft 10 diamond_pickaxe
+- T_craft     // Craft (how many times, not how many items) item event, eg. craft 10 diamond_pickaxe
 - enchant     // Enchant item event, eg. enchant 1 diamond_sword
 - fish        // Fish (using fishing rod) event, eg. fish 64 pufferfish
 - catch       // Catch (using fishing rod) entity, eg. catch 10 wolf
